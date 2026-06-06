@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日日程表</title>
+    <style type="text/css">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container { width: 100%; max-width: 550px; }
+        
+        /* 头部样式 */
+        .header { text-align: center; margin-bottom: 30px; }
+        .student-info { 
+            font-size: 22px; 
+            font-weight: 700; 
+            color: #2c3e50; 
+            margin-bottom: 8px;
+        }
+        .current-time { 
+            font-size: 14px; 
+            color: #7f8c8d; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* 课程列表容器 */
+        .schedule-container { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 默认卡片样式 (毛玻璃效果) */
+        .class-card {
+            width: 100%;
+            padding: 18px 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.9);
+        }
+        .class-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+        
+        /* 上课中状态 (蓝色高亮) */
+        .class-card.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
+            border: none;
+        }
+        
+        /* 左侧时间 */
+        .time-slot { font-weight: 700; font-size: 15px; min-width: 110px; opacity: 0.9; }
+        
+        /* 中间课程详情 */
+        .class-details { flex: 1; margin-left: 15px; }
+        .class-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; word-break: break-all;}
+        .class-room { font-size: 12px; opacity: 0.8; }
+        
+        /* 右侧状态胶囊 */
+        .status-tag {
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #eee;
+            color: #888;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        .class-card.active .status-tag {
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+        
+        .end-msg { text-align: center; margin-top: 20px; color: #aaa; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="student-info">王国鑫的日程</div>
+        <div class="current-time" id="currentInfo"></div>
+    </div>
+    <div class="schedule-container" id="schedule"></div>
+</div>
+
+<script>
+    // 1. 学期开始日期
+    const TERM_START_DATE = new Date("2026-03-09");
+
+    // 2. 完整课程数据源 (严格区分单双周，使用全称)
+    // 结构说明：[ 星期日, 星期一, 星期二, 星期三, 星期四, 星期五, 星期六 ]
+    // 每个时间段包含 start(开始时间), dur(时长分钟), odd(单周课程), even(双周课程)
+    const weeklySchedule = [
+        [], // 星期日 
+        [  // 星期一
+            { start: "08:15", dur: 90, odd: {name:"劳动教育", room:"博学楼C202"}, even: {name:"Java面向对象程序设计", room:"格物楼221"} },
+            { start: "10:10", dur: 90, odd: null, even: null },
+			{ start: "14:00", dur: 90, odd: {name:"实用英语", room:"博学楼C201"}, even: null },
+			{ start: "15:50", dur: 90, odd: null, even: null },
+			{ start: "18:20", dur: 90, odd: {name:"晚自习", room:"博学楼C203"}, even: null }
+        ],
+        [  // 星期二
+            { start: "08:15", dur: 90, odd: {name:"习近平新时代中国特色社会主义思想概论", room:"厚德楼C315"}, even: null },
+            { start: "10:10", dur: 90, odd: null, even: null },
+			{ start: "14:00", dur: 90, odd: {name:"大学语文", room:"博学楼C203"}, even: null },
+            { start: "15:50", dur: 90, odd: {name:"计算机网络基础与应用", room:"厚德楼B113"}, even: null },
+            { start: "18:20", dur: 90, odd: null, even: null }
+        ],
+        [  // 星期三
+            { start: "08:15", dur: 90, odd: {name:"Web前端基础", room:"格物楼107"}, even: null },
+            { start: "10:10", dur: 90, odd: {name:"Web前端基础", room:"格物楼221"}, even: null },
+            { start: "14:00", dur: 90, odd: null, even: null },
+            { start: "15:50", dur: 90, odd: null, even: null },
+            { start: "18:20", dur: 90, odd: {name:"晚自习", room:"博学楼C201"}, even: null }
+        ],
+        [  // 星期四
+			{ start: "08:15", dur: 90, odd: {name:"产业认知", room:"博学楼C201"}, even: {name:"国家安全教育", room:"博学楼A201"} },
+			{ start: "10:10", dur: 90, odd: {name:"心理健康", room:"博学楼C205"}, even: null },
+			{ start: "14:00", dur: 90, odd: {name:"习近平中国特色社会主义思想概论", room:"厚德楼A503"}, even: {name:"Web前端基础", room:"格物楼221"} },
+			{ start: "15:50", dur: 90, odd: {name:"信息素养：成为检索达人的必修课", room:"厚德楼B113"}, even: null },
+			{ start: "18:20", dur: 90, odd: {name:"晚自习", room:"博学楼C203"}, even: null }
+        ],
+        [  // 星期五
+            { start: "08:15", dur: 90, odd: {name:"实用英语", room:"博学楼C204"}, even: null },
+            { start: "10:10", dur: 90, odd: {name:"创新创业教育", room:"博学楼C202"}, even: null },
+            { start: "14:00", dur: 90, odd: {name:"应用数学", room:"博学楼C202"}, even: null },
+            { start: "15:50", dur: 90, odd: {name:"篮球", room:"篮球场1"}, even: null },
+            { start: "18:20", dur: 90, odd: null, even: null }
+        ],
+        []  // 星期六
+    ];
+
+    // 3. 计算当前是第几周
+    function getCurrentWeek() {
+        const now = new Date();
+        const diffTime = now - TERM_START_DATE;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(Math.floor(diffDays / 7) + 1, 1);
+    }
+
+    // 4. 转换时间为今天的时间戳
+    function getTimestamp(timeStr) {
+        const [h, m] = timeStr.split(':').map(Number);
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        return d.getTime();
+    }
+
+    // 5. 核心渲染函数
+    function render() {
+        const now = new Date();
+        const currentDay = now.getDay();
+        const nowTimestamp = now.getTime();
+
+        // 计算周数及单双周属性
+        const weekNum = getCurrentWeek();
+        const isOddWeek = weekNum % 2 !== 0;
+        const weekType = isOddWeek ? "单周" : "双周";
+
+        // 更新顶部信息
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        document.getElementById('currentInfo').textContent = 
+            `${now.toLocaleDateString('zh-CN', options)} | 第 ${weekNum} 周 (${weekType})`;
+
+        const container = document.getElementById('schedule');
+        container.innerHTML = '';
+
+        const todayClasses = weeklySchedule[currentDay];
+
+        // 无课情况
+        if (!todayClasses || todayClasses.length === 0) {
+            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">今天没有安排课程</div><div class="class-room">好好休息一下吧 🎉</div></div></div>';
+            return;
+        }
+
+        let hasActiveClass = false;
+        let validClassesToday = 0;
+
+        todayClasses.forEach(cls => {
+            // 核心逻辑：根据当前是单周还是双周，提取对应的课程信息
+            const courseInfo = isOddWeek ? cls.odd : cls.even;
+            
+            if (!courseInfo) return; 
+            
+            validClassesToday++;
+            const startTs = getTimestamp(cls.start);
+            const endTs = startTs + cls.dur * 60 * 1000;
+            
+            let statusText = "";
+            let isActive = false;
+
+            if (nowTimestamp >= startTs && nowTimestamp < endTs) {
+                isActive = true;
+                hasActiveClass = true;
+                const elapsedMin = Math.floor((nowTimestamp - startTs) / 60000);
+                statusText = `已上 ${elapsedMin} 分钟`;
+            } else if (nowTimestamp < startTs) {
+                const diffMs = startTs - nowTimestamp;
+                const hours = Math.floor(diffMs / 3600000);
+                const mins = Math.floor((diffMs % 3600000) / 60000);
+                statusText = `还有 ${hours}时${mins}分`;
+            } else {
+                statusText = "已结束";
+            }
+
+            const card = document.createElement('div');
+            card.className = `class-card ${isActive ? 'active' : ''}`;
+            card.innerHTML = `
+                <div class="time-slot">${cls.start}</div>
+                <div class="class-details">
+                    <div class="class-name">${courseInfo.name}</div>
+                    <div class="class-room">${courseInfo.room}</div>
+                </div>
+                <div class="status-tag">${statusText}</div>
+            `;
+            container.appendChild(card);
+        });
+
+        // 如果过滤掉无课后，今天实际上没课
+        if (validClassesToday === 0) {
+            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">本周该日无课程安排</div><div class="class-room">享受休息时光吧 ☕</div></div></div>';
+            return;
+        }
+
+        // 今日结束提示
+        if (!hasActiveClass && validClassesToday > 0) {
+            const lastClass = todayClasses[todayClasses.length-1];
+            const lastCourse = isOddWeek ? lastClass.odd : lastClass.even;
+            if(lastCourse) {
+                const lastEndTs = getTimestamp(lastClass.start) + lastClass.dur * 60 * 1000;
+                if (nowTimestamp > lastEndTs) {
+                    const endMsg = document.createElement('div');
+                    endMsg.className = "end-msg";
+                    endMsg.textContent = "🌙 今日课程已全部结束";
+                    container.appendChild(endMsg);
+                }
+            }
+        }
+    }
+
+    setInterval(render, 1000);
+    render();
+</script>
+</body>
+</html>
