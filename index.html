@@ -27,7 +27,6 @@
             margin: 0 auto;
         }
 
-        /* 头部优雅玻璃风格 */
         .header {
             text-align: center;
             margin-bottom: 28px;
@@ -60,14 +59,12 @@
             backdrop-filter: blur(4px);
         }
 
-        /* 课程卡片容器 */
         .schedule-container {
             display: flex;
             flex-direction: column;
             gap: 14px;
         }
 
-        /* 基础卡片 (毛玻璃质感) */
         .class-card {
             width: 100%;
             padding: 16px 20px;
@@ -83,7 +80,6 @@
             opacity: 0.85;
         }
 
-        /* 上课高亮状态 (活力渐变) */
         .class-card.active {
             background: linear-gradient(125deg, #2b6ef0, #3b8aff);
             color: white;
@@ -93,7 +89,6 @@
             opacity: 1;
         }
 
-        /* 课间休息卡片样式 (柔和橙调，提示休息) */
         .class-card.break-time {
             background: rgba(253, 216, 53, 0.22);
             backdrop-filter: blur(12px);
@@ -188,15 +183,15 @@
 </div>
 
 <script>
-    // ---------- 学期校准 (2026年3月9日开学) ----------
+    // ---------- 学期配置 (2026年3月9日开学) ----------
     const TERM_START_DATE = new Date("2026-03-09");
 
-    // ---------- 完整课程数据 (保留原单双周) ----------
+    // ---------- 完整课表 (原始单双周数据) ----------
     const weeklySchedule = [
         [], // 周日
         [   // 周一
-            { start: "08:15", dur: 90, odd: { name: "劳动教育", room: "博学楼C202" }, even: { name: "Java面向对象程序设计", room: "格物楼机房221" } },
-            { start: "14:00", dur: 90, odd: { name: "实用英语", room: "博学楼C201" }, even: { name: "实用英语", room: "博学楼C201" } },
+            { start: "08:15", dur: 90, odd: { name: "劳动教育", room: "博学楼C202" }, even: { name: "Java面向对象程序设计", room: "格物楼机房201" } },
+            { start: "14:00", dur: 45, odd: { name: "实用英语", room: "博学楼C201" }, even: { name: "实用英语", room: "博学楼C201" } },
             { start: "18:20", dur: 90, odd: { name: "晚自习", room: "博学楼C203" }, even: { name: "晚自习", room: "博学楼C203" } }
         ],
         [   // 周二
@@ -206,7 +201,7 @@
         ],
         [   // 周三
             { start: "08:15", dur: 90, odd: { name: "Web前端开发基础", room: "格物楼机房107" }, even: { name: "Web前端开发基础", room: "格物楼机房107" } },
-            { start: "10:10", dur: 90, odd: { name: "Java面向对象程序设计", room: "格物楼机房221" }, even: { name: "Java面向对象程序设计", room: "格物楼机房221" } },
+            { start: "10:10", dur: 90, odd: { name: "Java面向对象程序设计", room: "格物楼机房201" }, even: { name: "Java面向对象程序设计", room: "格物楼机房201" } },
             { start: "18:20", dur: 90, odd: { name: "晚自习/社团", room: "博学楼C201" }, even: { name: "晚自习/社团", room: "博学楼C201" } }
         ],
         [   // 周四
@@ -225,7 +220,7 @@
         []  // 周六
     ];
 
-    // 获取当前学期周数 (单双周)
+    // 获取当前周数 (单双周)
     function getCurrentWeek() {
         const now = new Date();
         const diffTime = now - TERM_START_DATE;
@@ -235,7 +230,7 @@
         return week;
     }
 
-    // 时间字符串转今日时间戳 (小时分钟)
+    // 将 "HH:MM" 转换为今天的时间戳（毫秒）
     function getTimestamp(timeStr) {
         const [h, m] = timeStr.split(':').map(Number);
         const d = new Date();
@@ -243,8 +238,8 @@
         return d.getTime();
     }
 
-    // 根据具体小时分钟获取当天时间戳 (用于固定时刻: 09:00, 11:00)
-    function getTodayTimeByHourMin(hour, minute) {
+    // 获取今天某个固定时刻的时间戳 (如 9:00)
+    function getTodayTime(hour, minute) {
         const d = new Date();
         d.setHours(hour, minute, 0, 0);
         return d.getTime();
@@ -256,17 +251,17 @@
         return hour < 12;
     }
 
-    // 核心渲染: 依据固定时刻课间逻辑 (第一节 9:00-9:05 / 第二节 11:00开始 博学楼5min 其他15min)
+    // 核心渲染 (修复课间后课程提前结束的问题)
     function render() {
         const now = new Date();
-        const currentDay = now.getDay();      // 0周日 ~ 6周六
-        const nowTimestamp = now.getTime();
+        const currentDay = now.getDay();    // 0周日 ~ 6周六
+        const nowMs = now.getTime();
 
         const weekNum = getCurrentWeek();
         const isOddWeek = weekNum % 2 !== 0;
         const weekType = isOddWeek ? "单周" : "双周";
 
-        // 更新头部信息
+        // 更新顶部信息
         const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit' };
         const formattedNow = now.toLocaleDateString('zh-CN', options);
         document.getElementById('currentInfo').innerHTML = `${formattedNow} &nbsp;|&nbsp; 第${weekNum}周 (${weekType})`;
@@ -274,188 +269,150 @@
         const container = document.getElementById('schedule');
         container.innerHTML = '';
 
-        let rawClasses = weeklySchedule[currentDay];
+        const rawClasses = weeklySchedule[currentDay];
         if (!rawClasses || rawClasses.length === 0) {
             container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">✨ 今天没有安排课程</div><div class="class-room">享受自由时光，放松或自习吧 🍃</div></div></div>';
             return;
         }
 
-        // 1. 根据单双周过滤出有效课程列表
-        const validCourseItems = [];
-        for (let idx = 0; idx < rawClasses.length; idx++) {
-            const cls = rawClasses[idx];
+        // 1. 根据单双周过滤有效课程
+        const validItems = [];
+        for (const cls of rawClasses) {
             const courseData = isOddWeek ? cls.odd : cls.even;
             if (courseData && courseData.name) {
-                validCourseItems.push({
-                    originalCls: cls,
-                    course: courseData,
-                    startTime: cls.start,
-                    durationMin: cls.dur
+                validItems.push({
+                    startStr: cls.start,
+                    durationMin: cls.dur,
+                    course: courseData
                 });
             }
         }
 
-        if (validCourseItems.length === 0) {
+        if (validItems.length === 0) {
             container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">📭 本周今日无课程安排</div><div class="class-room">调整节奏，劳逸结合</div></div></div>';
             return;
         }
 
-        // 获取所有上午课程 (按时间升序)
-        const morningCourses = validCourseItems.filter(item => isMorningClass(item.startTime));
-        morningCourses.sort((a, b) => getTimestamp(a.startTime) - getTimestamp(b.startTime));
+        // 2. 提取上午课程并按时间排序 (用于确定第一节、第二节)
+        const morningItems = validItems.filter(item => isMorningClass(item.startStr));
+        morningItems.sort((a, b) => getTimestamp(a.startStr) - getTimestamp(b.startStr));
 
-        // ----- 为上午课程添加固定时刻休息区间 (基于用户要求) -----
-        // 第一节: 09:00 - 09:05 (休息5分钟)
-        // 第二节: 11:00开始, 若教室为博学楼则休息5分钟(至11:05), 否则休息15分钟(至11:15)
-        for (let i = 0; i < morningCourses.length; i++) {
-            const item = morningCourses[i];
-            item.breakInterval = null;   // 重置
-            const startTs = getTimestamp(item.startTime);
+        // 3. 为上午课程添加休息区间 (基于固定时刻 09:00 和 11:00)
+        for (let i = 0; i < morningItems.length; i++) {
+            const item = morningItems[i];
+            item.breakPeriod = null;   // 初始化无休息
+            const startTs = getTimestamp(item.startStr);
             const endTs = startTs + item.durationMin * 60 * 1000;
-            
-            // 第一节 (当天第一门上午课)
+
+            // 第一节: 09:00 - 09:05 (休息5分钟)
             if (i === 0) {
-                const breakStart = getTodayTimeByHourMin(9, 0);
-                const breakEnd = getTodayTimeByHourMin(9, 5);
-                // 确保休息区间完全落在该课程时段内 (课程覆盖9:00~9:05)
+                const breakStart = getTodayTime(9, 0);
+                const breakEnd = getTodayTime(9, 5);
                 if (breakStart >= startTs && breakEnd <= endTs) {
-                    item.breakInterval = {
-                        start: breakStart,
-                        end: breakEnd,
-                        durationMin: 5,
-                        type: 'firstBreak',
-                        label: '☕ 课间休息 · 5分钟'
-                    };
+                    item.breakPeriod = { start: breakStart, end: breakEnd, duration: 5, type: 'first' };
                 }
             }
-            // 第二节 (当天第二门上午课)
+            // 第二节: 11:00 开始，根据教室决定时长 (博学楼5分钟，其余15分钟)
             else if (i === 1) {
                 const roomName = item.course.room || "";
-                const isBoXueLou = roomName.includes("博学楼");
-                const restDuration = isBoXueLou ? 5 : 15;   // 博学楼5分钟，其他15分钟
-                const breakStart = getTodayTimeByHourMin(11, 0);
-                const breakEnd = new Date(breakStart + restDuration * 60 * 1000);
-                // 验证休息区间是否在课程时段内 (第二节课程通常10:10-11:40 或 08:15-09:45？上午第二节开始时间一般在10:10，覆盖11:00)
-                if (breakStart >= startTs && breakEnd.getTime() <= endTs) {
-                    item.breakInterval = {
-                        start: breakStart,
-                        end: breakEnd.getTime(),
-                        durationMin: restDuration,
-                        type: 'secondBreak',
-                        isBoXueLou: isBoXueLou,
-                        label: isBoXueLou ? '🍃 博学楼短休 · 5分钟' : '⏳ 长课间 · 15分钟'
-                    };
+                const isBoXue = roomName.includes("博学楼");
+                const restDur = isBoXue ? 5 : 15;
+                const breakStart = getTodayTime(11, 0);
+                const breakEnd = breakStart + restDur * 60 * 1000;
+                if (breakStart >= startTs && breakEnd <= endTs) {
+                    item.breakPeriod = { start: breakStart, end: breakEnd, duration: restDur, type: 'second', isBoXueLou: isBoXue };
                 }
             }
-            // 其余上午课程 (第三、四节等) 不添加任何课间休息
+            // 其它上午课程无休息，下午/晚上课程保持不变（无任何休息区间）
         }
 
-        // 辅助: 获取当前课程的状态 (上课中 / 课间休息 / 未开始 / 已结束)
-        function getCourseStatus(item, nowMs) {
-            const startTs = getTimestamp(item.startTime);
+        // 4. 判断每个课程当前的状态 (上课中 / 课间休息 / 未开始 / 已结束)
+        function getStatusForItem(item, nowMs) {
+            const startTs = getTimestamp(item.startStr);
             const endTs = startTs + item.durationMin * 60 * 1000;
-            const breakInt = item.breakInterval || null;
+            const breakPeriod = item.breakPeriod;
 
-            // 1. 优先判断课间休息时段
-            if (breakInt && nowMs >= breakInt.start && nowMs < breakInt.end) {
-                const remainMs = breakInt.end - nowMs;
+            // ① 课间休息中
+            if (breakPeriod && nowMs >= breakPeriod.start && nowMs < breakPeriod.end) {
+                const remainMs = breakPeriod.end - nowMs;
                 const remainMin = Math.floor(remainMs / 60000);
                 const remainSec = Math.floor((remainMs % 60000) / 1000);
-                let statusText = '';
-                if (remainMin > 0) {
-                    statusText = `⏸️ 课间休息 ${remainMin}分${remainSec}秒`;
-                } else {
-                    statusText = `⏸️ 课间休息 ${remainSec}秒`;
+                let msg = remainMin > 0 ? `休息 ${remainMin}分${remainSec}秒` : `休息 ${remainSec}秒`;
+                if (breakPeriod.type === 'first') msg = `☕ 课间小憩 · ${msg}`;
+                else if (breakPeriod.type === 'second') {
+                    if (breakPeriod.isBoXueLou) msg = `📚 博学楼短休 · ${msg}`;
+                    else msg = `🏃 长课间 · ${msg}`;
                 }
-                // 附加特殊提示 (博学楼或长课间)
-                if (breakInt.type === 'firstBreak') statusText = `☕ 小憩时刻 · ${statusText.replace('⏸️ 课间休息', '')}`;
-                if (breakInt.type === 'secondBreak') {
-                    if (breakInt.isBoXueLou) statusText = `📚 博学楼课间 · ${statusText.replace('⏸️ 课间休息', '')}`;
-                    else statusText = `🏃 充裕课间 · ${statusText.replace('⏸️ 课间休息', '')}`;
-                }
-                return { isActive: false, isBreak: true, statusText, withinCourse: true };
+                return { active: false, isBreak: true, text: msg };
             }
 
-            // 2. 正常上课区间 (避开休息)
+            // ② 正常上课时间 (排除休息区间后)
             if (nowMs >= startTs && nowMs < endTs) {
-                let elapsedMs = nowMs - startTs;
-                // 如果有休息区间且已经过了休息结束时间，需要减掉休息时长，让已上课时长更精确
-                if (breakInt && nowMs >= breakInt.end) {
-                    const breakDurationMs = breakInt.end - breakInt.start;
-                    elapsedMs = elapsedMs - breakDurationMs;
-                    if (elapsedMs < 0) elapsedMs = nowMs - startTs;
+                // 计算有效已上课时长 (如果前面有休息区间且已过休息结束，需扣除休息时长)
+                let effectiveElapsed = nowMs - startTs;
+                if (breakPeriod && nowMs >= breakPeriod.end) {
+                    const breakLen = breakPeriod.end - breakPeriod.start;
+                    effectiveElapsed = Math.max(0, effectiveElapsed - breakLen);
                 }
-                const elapsedMin = Math.floor(elapsedMs / 60000);
-                return { isActive: true, isBreak: false, statusText: `📖 已上 ${elapsedMin} 分钟`, withinCourse: true };
+                const elapsedMin = Math.floor(effectiveElapsed / 60000);
+                return { active: true, isBreak: false, text: `📖 已上 ${elapsedMin} 分钟` };
             }
 
-            // 3. 未开始
+            // ③ 未开始
             if (nowMs < startTs) {
-                const diffMs = startTs - nowMs;
-                const hours = Math.floor(diffMs / 3600000);
-                const mins = Math.floor((diffMs % 3600000) / 60000);
-                let statusText = '';
-                if (hours > 0) statusText = `还有 ${hours}时${mins}分`;
-                else statusText = `还有 ${mins} 分钟`;
-                return { isActive: false, isBreak: false, statusText, withinCourse: false };
+                const diff = startTs - nowMs;
+                const hours = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+                const waitText = hours > 0 ? `还有 ${hours}时${mins}分` : `还有 ${mins} 分钟`;
+                return { active: false, isBreak: false, text: waitText };
             }
 
-            // 4. 已结束
-            return { isActive: false, isBreak: false, statusText: '✅ 已结束', withinCourse: false };
+            // ④ 已结束
+            return { active: false, isBreak: false, text: "✅ 已结束" };
         }
 
-        // 遍历所有有效课程，渲染卡片
-        let hasActiveClass = false;
-        let allFinishedFlag = true;
-        let anyFutureClass = false;
+        // 5. 渲染所有有效课程卡片
+        let hasActive = false;
+        let allFinished = true;
 
-        for (let i = 0; i < validCourseItems.length; i++) {
-            const item = validCourseItems[i];
-            const { course, startTime, durationMin } = item;
-            const status = getCourseStatus(item, nowTimestamp);
-            const isActive = status.isActive;
+        for (const item of validItems) {
+            const status = getStatusForItem(item, nowMs);
+            const isActive = status.active;
             const isBreak = status.isBreak;
-            let statusText = status.statusText;
+            let statusText = status.text;
 
-            if (isActive) hasActiveClass = true;
-            // 计算整体结束标志
-            const endTs = getTimestamp(startTime) + durationMin * 60 * 1000;
-            if (nowTimestamp < endTs) allFinishedFlag = false;
-            if (nowTimestamp < getTimestamp(startTime)) anyFutureClass = true;
+            if (isActive) hasActive = true;
+            // 判断今日是否全部结束 (仅用于底部提示，不影响卡片)
+            const endTs = getTimestamp(item.startStr) + item.durationMin * 60 * 1000;
+            if (nowMs < endTs) allFinished = false;
 
-            // 卡片样式
             let cardClass = "class-card";
             if (isActive) cardClass += " active";
             else if (isBreak) cardClass += " break-time";
 
-            const roomDisplay = course.room || "未标注教室";
             const card = document.createElement('div');
             card.className = cardClass;
             card.innerHTML = `
-                <div class="time-slot">${startTime}</div>
+                <div class="time-slot">${item.startStr}</div>
                 <div class="class-details">
-                    <div class="class-name">${course.name}</div>
-                    <div class="class-room">📍 ${roomDisplay}</div>
+                    <div class="class-name">${item.course.name}</div>
+                    <div class="class-room">📍 ${item.course.room || "未标注"}</div>
                 </div>
                 <div class="status-tag">${statusText}</div>
             `;
             container.appendChild(card);
         }
 
-        // 今日全部结束的暖心提示
-        if (!hasActiveClass && allFinishedFlag && validCourseItems.length > 0) {
-            const endMsgDiv = document.createElement('div');
-            endMsgDiv.className = "end-msg";
-            endMsgDiv.innerHTML = "🌙 今日课程已全部结束 · 满载而归，好好放松吧 ✨";
-            container.appendChild(endMsgDiv);
-        } else if (!hasActiveClass && !anyFutureClass && !allFinishedFlag) {
-            // 处于课间或者两节课间隙，不额外处理，保持休息卡片展示
+        // 底部结束语（仅当天所有课程均结束且无活跃课程时显示）
+        if (!hasActive && allFinished && validItems.length > 0) {
+            const footer = document.createElement('div');
+            footer.className = "end-msg";
+            footer.innerHTML = "🌙 今日课程已全部结束 · 满载而归，好好放松吧 ✨";
+            container.appendChild(footer);
         }
-
-        // 针对下午和晚上的课程，休息区间从未添加，完全符合 “下午和晚上不变” 的要求
     }
 
-    // 每秒刷新
+    // 每秒刷新界面
     setInterval(render, 1000);
     render();
 </script>
