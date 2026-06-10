@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>王国鑫的日程</title>
-    <style type="text/css">
+    <title>日程表</title>
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: linear-gradient(145deg, #eef2f5 0%, #e0e8ef 100%);
             color: #1e2a3e;
             display: flex;
@@ -44,7 +44,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: -0.3px;
             margin-bottom: 6px;
         }
 
@@ -176,7 +175,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <div class="student-info">📖 欢迎进入王国鑫的日程</div>
+        <div class="student-info">📖 王国鑫的日程</div>
         <div class="current-time" id="currentInfo"></div>
     </div>
     <div class="schedule-container" id="schedule"></div>
@@ -186,7 +185,7 @@
     // ---------- 学期配置 (2026年3月9日开学) ----------
     const TERM_START_DATE = new Date("2026-03-09");
 
-    // ---------- 完整课表 (原始单双周数据) ----------
+    // ---------- 完整课表 (原始单双周数据，时长均为纯教学时长) ----------
     const weeklySchedule = [
         [], // 周日
         [   // 周一
@@ -238,7 +237,7 @@
         return d.getTime();
     }
 
-    // 获取今天某个固定时刻的时间戳 (如 9:00)
+    // 获取今天某个固定时刻的时间戳
     function getTodayTime(hour, minute) {
         const d = new Date();
         d.setHours(hour, minute, 0, 0);
@@ -251,17 +250,16 @@
         return hour < 12;
     }
 
-    // 核心渲染 (修复课间后课程提前结束的问题)
+    // 核心渲染函数 —— 完全修复结束时间 bug：将休息时长计入课程总占用时间
     function render() {
         const now = new Date();
-        const currentDay = now.getDay();    // 0周日 ~ 6周六
+        const currentDay = now.getDay();
         const nowMs = now.getTime();
 
         const weekNum = getCurrentWeek();
         const isOddWeek = weekNum % 2 !== 0;
         const weekType = isOddWeek ? "单周" : "双周";
 
-        // 更新顶部信息
         const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit' };
         const formattedNow = now.toLocaleDateString('zh-CN', options);
         document.getElementById('currentInfo').innerHTML = `${formattedNow} &nbsp;|&nbsp; 第${weekNum}周 (${weekType})`;
@@ -282,7 +280,7 @@
             if (courseData && courseData.name) {
                 validItems.push({
                     startStr: cls.start,
-                    durationMin: cls.dur,
+                    teachingMin: cls.dur,      // 纯教学时长 (分钟)
                     course: courseData
                 });
             }
@@ -297,39 +295,53 @@
         const morningItems = validItems.filter(item => isMorningClass(item.startStr));
         morningItems.sort((a, b) => getTimestamp(a.startStr) - getTimestamp(b.startStr));
 
-        // 3. 为上午课程添加休息区间 (基于固定时刻 09:00 和 11:00)
+        // 3. 为上午课程添加休息区间，并计算真正的结束时间（原始教学时长 + 休息时长）
         for (let i = 0; i < morningItems.length; i++) {
             const item = morningItems[i];
-            item.breakPeriod = null;   // 初始化无休息
+            item.breakPeriod = null;      // 休息区间 { start, end, duration }
             const startTs = getTimestamp(item.startStr);
-            const endTs = startTs + item.durationMin * 60 * 1000;
+            // 纯教学结束时间（不含休息）
+            const pureEndTs = startTs + item.teachingMin * 60 * 1000;
 
             // 第一节: 09:00 - 09:05 (休息5分钟)
             if (i === 0) {
                 const breakStart = getTodayTime(9, 0);
                 const breakEnd = getTodayTime(9, 5);
-                if (breakStart >= startTs && breakEnd <= endTs) {
+                // 确保休息区间落在纯教学时段内 (满足 08:15~09:45 包含 09:00~09:05)
+                if (breakStart >= startTs && breakEnd <= pureEndTs) {
                     item.breakPeriod = { start: breakStart, end: breakEnd, duration: 5, type: 'first' };
                 }
             }
-            // 第二节: 11:00 开始，根据教室决定时长 (博学楼5分钟，其余15分钟)
+            // 第二节: 11:00 开始，根据教室决定休息时长 (博学楼5分钟，其他15分钟)
             else if (i === 1) {
                 const roomName = item.course.room || "";
                 const isBoXue = roomName.includes("博学楼");
                 const restDur = isBoXue ? 5 : 15;
                 const breakStart = getTodayTime(11, 0);
                 const breakEnd = breakStart + restDur * 60 * 1000;
-                if (breakStart >= startTs && breakEnd <= endTs) {
+                if (breakStart >= startTs && breakEnd <= pureEndTs) {
                     item.breakPeriod = { start: breakStart, end: breakEnd, duration: restDur, type: 'second', isBoXueLou: isBoXue };
                 }
             }
-            // 其它上午课程无休息，下午/晚上课程保持不变（无任何休息区间）
+
+            // 关键修复：计算课程真正的结束时间 = 纯教学结束时间 + 休息时长
+            const breakDuration = item.breakPeriod ? item.breakPeriod.duration : 0;
+            item.realEndTs = startTs + (item.teachingMin + breakDuration) * 60 * 1000;
         }
 
-        // 4. 判断每个课程当前的状态 (上课中 / 课间休息 / 未开始 / 已结束)
+        // 对于非上午课程（下午/晚上）或没有休息的课程，realEndTs = 纯教学结束时间
+        for (const item of validItems) {
+            if (item.realEndTs === undefined) {
+                const startTs = getTimestamp(item.startStr);
+                item.realEndTs = startTs + item.teachingMin * 60 * 1000;
+                item.breakPeriod = null;
+            }
+        }
+
+        // 4. 获取每个课程的当前状态 (基于真正的结束时间)
         function getStatusForItem(item, nowMs) {
             const startTs = getTimestamp(item.startStr);
-            const endTs = startTs + item.durationMin * 60 * 1000;
+            const endTs = item.realEndTs;          // 已包含休息的结束时间
             const breakPeriod = item.breakPeriod;
 
             // ① 课间休息中
@@ -346,15 +358,17 @@
                 return { active: false, isBreak: true, text: msg };
             }
 
-            // ② 正常上课时间 (排除休息区间后)
+            // ② 正常上课中 (但跳过休息区间)
             if (nowMs >= startTs && nowMs < endTs) {
-                // 计算有效已上课时长 (如果前面有休息区间且已过休息结束，需扣除休息时长)
-                let effectiveElapsed = nowMs - startTs;
+                // 计算已上课时 (扣除休息时长)
+                let elapsedTeachingMs = nowMs - startTs;
                 if (breakPeriod && nowMs >= breakPeriod.end) {
                     const breakLen = breakPeriod.end - breakPeriod.start;
-                    effectiveElapsed = Math.max(0, effectiveElapsed - breakLen);
+                    elapsedTeachingMs = Math.max(0, elapsedTeachingMs - breakLen);
+                } else if (breakPeriod && nowMs > breakPeriod.start && nowMs < breakPeriod.end) {
+                    // 这种情况不会进入，因为已经在上面的休息区间处理了
                 }
-                const elapsedMin = Math.floor(effectiveElapsed / 60000);
+                const elapsedMin = Math.floor(elapsedTeachingMs / 60000);
                 return { active: true, isBreak: false, text: `📖 已上 ${elapsedMin} 分钟` };
             }
 
@@ -371,7 +385,7 @@
             return { active: false, isBreak: false, text: "✅ 已结束" };
         }
 
-        // 5. 渲染所有有效课程卡片
+        // 5. 渲染所有卡片
         let hasActive = false;
         let allFinished = true;
 
@@ -382,9 +396,7 @@
             let statusText = status.text;
 
             if (isActive) hasActive = true;
-            // 判断今日是否全部结束 (仅用于底部提示，不影响卡片)
-            const endTs = getTimestamp(item.startStr) + item.durationMin * 60 * 1000;
-            if (nowMs < endTs) allFinished = false;
+            if (nowMs < item.realEndTs) allFinished = false;
 
             let cardClass = "class-card";
             if (isActive) cardClass += " active";
@@ -403,7 +415,6 @@
             container.appendChild(card);
         }
 
-        // 底部结束语（仅当天所有课程均结束且无活跃课程时显示）
         if (!hasActive && allFinished && validItems.length > 0) {
             const footer = document.createElement('div');
             footer.className = "end-msg";
@@ -412,7 +423,7 @@
         }
     }
 
-    // 每秒刷新界面
+    // 每秒刷新
     setInterval(render, 1000);
     render();
 </script>
