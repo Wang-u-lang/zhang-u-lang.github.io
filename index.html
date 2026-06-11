@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>灵动天地</title>
+    <title>灵动岛</title>
+    <!-- SheetJS 核心库：用于 Excel 解析与生成 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -28,7 +30,6 @@
             margin: 0 auto;
         }
 
-        /* 标题区域：居中显示 */
         .title-section {
             text-align: center;
             margin-bottom: 22px;
@@ -69,7 +70,6 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.02);
         }
 
-        /* 菜单栏：独立风格，浅蓝渐变，与下方卡片区分 */
         .action-bar {
             background: linear-gradient(115deg, rgba(225, 240, 255, 0.88), rgba(205, 225, 245, 0.92));
             backdrop-filter: blur(20px);
@@ -152,7 +152,6 @@
             margin: 0 4px;
         }
 
-        /* 课表卡片容器 */
         .schedule-container {
             display: flex;
             flex-direction: column;
@@ -160,7 +159,6 @@
             margin-top: 8px;
         }
 
-        /* 假期专属界面 */
         .holiday-card {
             background: linear-gradient(145deg, rgba(255, 245, 225, 0.92), rgba(255, 235, 205, 0.88));
             backdrop-filter: blur(16px);
@@ -331,7 +329,10 @@
             color: #3f6988;
         }
 
-        /* 模态框保持原有精致风格 */
+        #importExcelInput {
+            display: none;
+        }
+
         .modal-mask {
             position: fixed;
             top: 0;
@@ -565,13 +566,11 @@
 </head>
 <body>
 <div class="container">
-    <!-- 标题 + 日期时间，居中显示 -->
     <div class="title-section">
-        <div class="main-title">智慧天地</div>
+        <div class="main-title">欢迎进入王国鑫的世界</div>
         <div class="live-clock" id="liveClock">加载中...</div>
     </div>
 
-    <!-- 所有菜单操作，独立一行，浅蓝渐变风格 -->
     <div class="action-bar">
         <div class="date-set-group">
             <span class="menu-label">📅 开学</span>
@@ -586,14 +585,16 @@
         <div class="divider"></div>
         <button id="editScheduleBtn" class="menu-btn">✏️ 编辑课表</button>
         <button id="nextWeekBtn" class="menu-btn">📅 下周课表</button>
+        <button id="exportExcelBtn" class="menu-btn">📎 导出Excel</button>
+        <button id="importExcelBtn" class="menu-btn">📂 导入Excel</button>
         <button id="resetDefaultBtn" class="menu-btn reset-btn">⟳ 重置默认</button>
     </div>
 
-    <!-- 课表卡片区 / 假期替换区 -->
     <div class="schedule-container" id="schedule"></div>
 </div>
 
-<!-- 课表编辑模态框 -->
+<input type="file" id="importExcelInput" accept=".xlsx, .xls, .csv">
+
 <div id="scheduleModal" class="modal-mask">
     <div class="modal-container">
         <h3>✏️ 单双周课表编辑器</h3>
@@ -607,7 +608,6 @@
     </div>
 </div>
 
-<!-- 下周课表模态框 -->
 <div id="nextWeekModal" class="modal-mask">
     <div class="modal-container">
         <h3>📆 下周课程预览</h3>
@@ -620,12 +620,12 @@
 </div>
 
 <script>
-    // ---------- 默认课表 ----------
+    // ==================== 默认课表（所有课程时长均为90分钟） ====================
     const DEFAULT_SCHEDULE = [
         [], // 周日
         [   // 周一
             { start: "08:15", dur: 90, odd: { name: "劳动教育", room: "博学楼C202" }, even: { name: "Java面向对象程序设计", room: "格物楼机房201" } },
-            { start: "14:00", dur: 45, odd: { name: "实用英语", room: "博学楼C201" }, even: { name: "实用英语", room: "博学楼C201" } },
+            { start: "14:00", dur: 90, odd: { name: "实用英语", room: "博学楼C201" }, even: { name: "实用英语", room: "博学楼C201" } },
             { start: "18:20", dur: 90, odd: { name: "晚自习", room: "博学楼C203" }, even: { name: "晚自习", room: "博学楼C203" } }
         ],
         [   // 周二
@@ -641,7 +641,7 @@
         [   // 周四
             { start: "08:15", dur: 90, odd: { name: "国家安全教育", room: "博学楼A201" }, even: { name: "国家安全教育", room: "博学楼A201" } },
             { start: "10:10", dur: 90, odd: { name: "心理健康", room: "博学楼C205" }, even: { name: "心理健康", room: "博学楼C205" } },
-            { start: "14:00", dur: 99, odd: { name: "Web前端开发基础", room: "格物楼机房107" }, even: { name: "Web前端开发基础", room: "格物楼机房107" } },
+            { start: "14:00", dur: 90, odd: { name: "Web前端开发基础", room: "格物楼机房107" }, even: { name: "Web前端开发基础", room: "格物楼机房107" } },
             { start: "15:50", dur: 90, odd: { name: "信息素养：成为检索达人的必修课", room: "厚德楼B113" }, even: { name: "信息素养：成为检索达人的必修课", room: "厚德楼B113" } },
             { start: "18:20", dur: 90, odd: { name: "晚自习/社团", room: "博学楼C203" }, even: { name: "晚自习/社团", room: "博学楼C203" } }
         ],
@@ -656,9 +656,22 @@
 
     let currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
     let termStartDate = new Date("2026-03-09");
-    let termEndDate = new Date("2026-07-15");   // 默认学期结束日期
+    let termEndDate = new Date("2026-07-13");
 
-    // ---------- 辅助函数 ----------
+    function enforceAllCourses90Minutes(schedule) {
+        for (let dayIdx = 0; dayIdx < schedule.length; dayIdx++) {
+            const dayCourses = schedule[dayIdx];
+            if (!dayCourses) continue;
+            for (let courseIdx = 0; courseIdx < dayCourses.length; courseIdx++) {
+                const course = dayCourses[courseIdx];
+                if (course && course.dur !== undefined && course.dur !== 90) {
+                    course.dur = 90;
+                }
+            }
+        }
+        return schedule;
+    }
+
     function getCurrentWeek() {
         const now = new Date();
         const diffTime = now - termStartDate;
@@ -703,7 +716,13 @@
     function loadPersistedData() {
         const savedSchedule = localStorage.getItem('smart_schedule_data');
         if (savedSchedule) {
-            try { currentSchedule = JSON.parse(savedSchedule); } catch(e) {}
+            try { 
+                currentSchedule = JSON.parse(savedSchedule);
+                currentSchedule = enforceAllCourses90Minutes(currentSchedule);
+            } catch(e) {}
+        } else {
+            currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+            currentSchedule = enforceAllCourses90Minutes(currentSchedule);
         }
         const savedTerm = localStorage.getItem('smart_term_start');
         if (savedTerm) {
@@ -717,13 +736,122 @@
         }
         document.getElementById('termStartInput').value = termStartDate.toISOString().slice(0,10);
         document.getElementById('termEndInput').value = termEndDate.toISOString().slice(0,10);
+        currentSchedule = enforceAllCourses90Minutes(currentSchedule);
     }
 
     function resetToDefault() {
         currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+        currentSchedule = enforceAllCourses90Minutes(currentSchedule);
         persistData();
         refreshAll();
-        alert("✨ 课表已重置为默认预设 (含完整单双周课程)");
+        alert("✨ 课表已重置为默认预设 (所有课程时长均为90分钟)");
+    }
+
+    // ------------------- Excel 导出 -------------------
+    function exportToExcel() {
+        // 构建工作表数据：每个课程一行，包含星期、时间、单周课程、单周教室、双周课程、双周教室
+        const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+        const rows = [["星期", "时间", "单周课程", "单周教室", "双周课程", "双周教室"]];
+        
+        for (let dayIdx = 0; dayIdx < currentSchedule.length; dayIdx++) {
+            const dayCourses = currentSchedule[dayIdx];
+            if (dayCourses && dayCourses.length > 0) {
+                for (const course of dayCourses) {
+                    rows.push([
+                        weekdays[dayIdx],
+                        course.start,
+                        course.odd.name,
+                        course.odd.room || "",
+                        course.even.name,
+                        course.even.room || ""
+                    ]);
+                }
+            } else {
+                // 无课程的天数也留空一行（可选）
+                rows.push([weekdays[dayIdx], "", "", "", "", ""]);
+            }
+        }
+        
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "课程表");
+        
+        // 导出文件
+        XLSX.writeFile(wb, `课程表_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+        alert("✅ 课表已导出为 Excel 文件！");
+    }
+
+    // ------------------- Excel 导入 -------------------
+    function importFromExcel(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+                
+                if (!rows || rows.length < 2) {
+                    alert("❌ Excel 文件内容为空");
+                    return;
+                }
+                
+                // 期望表头：星期,时间,单周课程,单周教室,双周课程,双周教室
+                const header = rows[0];
+                if (!header || header[0] !== "星期" || header[1] !== "时间") {
+                    alert("❌ Excel 格式不正确，请确保表头为：星期、时间、单周课程、单周教室、双周课程、双周教室");
+                    return;
+                }
+                
+                // 初始化新课表
+                const newSchedule = [[], [], [], [], [], [], []];
+                const weekMap = { "周日": 0, "周一": 1, "周二": 2, "周三": 3, "周四": 4, "周五": 5, "周六": 6 };
+                
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || row.length < 6) continue;
+                    const weekName = (row[0] || "").toString().trim();
+                    const timeStr = (row[1] || "").toString().trim();
+                    const oddName = (row[2] || "").toString().trim();
+                    const oddRoom = (row[3] || "").toString().trim();
+                    const evenName = (row[4] || "").toString().trim();
+                    const evenRoom = (row[5] || "").toString().trim();
+                    
+                    if (!weekName || !timeStr) continue;
+                    const dayIdx = weekMap[weekName];
+                    if (dayIdx === undefined) continue;
+                    
+                    // 查找是否已有该时间段的课程，如果有则覆盖，否则新增
+                    const existingIndex = newSchedule[dayIdx].findIndex(c => c.start === timeStr);
+                    const courseItem = {
+                        start: timeStr,
+                        dur: 90,
+                        odd: { name: oddName || "待定", room: oddRoom || "未标注" },
+                        even: { name: evenName || oddName || "待定", room: evenRoom || oddRoom || "未标注" }
+                    };
+                    
+                    if (existingIndex !== -1) {
+                        newSchedule[dayIdx][existingIndex] = courseItem;
+                    } else {
+                        newSchedule[dayIdx].push(courseItem);
+                    }
+                }
+                
+                // 按时间排序每个星期
+                for (let dayIdx = 0; dayIdx < newSchedule.length; dayIdx++) {
+                    newSchedule[dayIdx].sort((a, b) => a.start.localeCompare(b.start));
+                }
+                
+                currentSchedule = enforceAllCourses90Minutes(newSchedule);
+                persistData();
+                refreshAll();
+                alert("✅ 课表导入成功！");
+            } catch(err) {
+                console.error(err);
+                alert("❌ 解析 Excel 失败，请检查文件格式");
+            }
+        };
+        reader.readAsArrayBuffer(file);
     }
 
     function updateLiveClock() {
@@ -739,7 +867,6 @@
         }
     }
 
-    // 假期界面渲染
     function renderHolidayUI() {
         const container = document.getElementById('schedule');
         const now = new Date();
@@ -763,7 +890,6 @@
         container.appendChild(holidayCard);
     }
 
-    // 正常课表渲染（保留原有逻辑）
     function renderNormalSchedule() {
         const now = new Date();
         const currentDay = now.getDay();
@@ -796,7 +922,6 @@
             return;
         }
 
-        // 课间休息逻辑
         const morningItems = validItems.filter(item => isMorningClass(item.startStr));
         morningItems.sort((a,b) => getTimestamp(a.startStr) - getTimestamp(b.startStr));
         for (let i=0; i<morningItems.length; i++) {
@@ -845,10 +970,13 @@
                 return { active: false, isBreak: true, text: msg, type: 'break' };
             }
             if (nowMs >= startTs && nowMs < endTs) {
-                let elapsed = nowMs - startTs;
-                if (bp && nowMs >= bp.end) elapsed -= (bp.end - bp.start);
-                const min = Math.floor(elapsed / 60000);
-                return { active: true, isBreak: false, text: `📖 已上 ${min} 分钟`, type: 'active' };
+                let remaining = endTs - nowMs;
+                if (remaining < 0) remaining = 0;
+                const totalSecs = Math.floor(remaining / 1000);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                const timeText = mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
+                return { active: true, isBreak: false, text: `⏳ 下课倒计时 ${timeText}`, type: 'active' };
             }
             if (nowMs < startTs) {
                 const diff = startTs - nowMs;
@@ -908,7 +1036,6 @@
         renderSchedule();
     }
 
-    // ---- 下周课表预览 ----
     function showNextWeekSchedule() {
         const currentWeek = getCurrentWeek();
         const nextWeekNum = currentWeek + 1;
@@ -949,7 +1076,6 @@
 
     function closeNextWeekModal() { document.getElementById('nextWeekModal').classList.remove('active'); }
 
-    // ---- 课表编辑器逻辑 ----
     let currentEditWeekday = 1;
     const weekdays = ["周日","周一","周二","周三","周四","周五","周六"];
     function openEditorModal() {
@@ -1004,9 +1130,14 @@
         };
     }
     function closeModal() { document.getElementById('scheduleModal').classList.remove('active'); }
-    function saveScheduleFromModal() { persistData(); closeModal(); refreshAll(); alert("✅ 课表已保存 · 单双周内容已更新"); }
+    function saveScheduleFromModal() { 
+        currentSchedule = enforceAllCourses90Minutes(currentSchedule);
+        persistData(); 
+        closeModal(); 
+        refreshAll(); 
+        alert("✅ 课表已保存 · 所有课程时长均为90分钟"); 
+    }
 
-    // ----- 初始化 -----
     window.onload = () => {
         loadPersistedData();
         document.getElementById('updateTermBtn').onclick = () => {
@@ -1021,6 +1152,14 @@
         };
         document.getElementById('editScheduleBtn').onclick = () => openEditorModal();
         document.getElementById('nextWeekBtn').onclick = () => showNextWeekSchedule();
+        document.getElementById('exportExcelBtn').onclick = () => exportToExcel();
+        document.getElementById('importExcelBtn').onclick = () => document.getElementById('importExcelInput').click();
+        document.getElementById('importExcelInput').onchange = (e) => {
+            if (e.target.files && e.target.files[0]) {
+                importFromExcel(e.target.files[0]);
+                e.target.value = '';
+            }
+        };
         document.getElementById('resetDefaultBtn').onclick = () => { if(confirm("重置将丢失所有课表修改，确定恢复默认？")) resetToDefault(); };
         document.getElementById('saveScheduleBtn').onclick = () => saveScheduleFromModal();
         document.getElementById('closeModalBtn').onclick = () => closeModal();
