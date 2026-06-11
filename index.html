@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>日程表</title>
+    <title>灵动天地</title>
     <style>
         * {
             margin: 0;
@@ -12,181 +12,616 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(145deg, #eef2f5 0%, #e0e8ef 100%);
-            color: #1e2a3e;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: radial-gradient(circle at 15% 30%, rgba(210, 230, 250, 0.9), #cddeef);
+            background-attachment: fixed;
+            color: #13294b;
             display: flex;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 28px 20px;
             min-height: 100vh;
         }
 
         .container {
             width: 100%;
-            max-width: 560px;
+            max-width: 880px;
             margin: 0 auto;
         }
 
-        .header {
+        /* 标题区域：居中显示 */
+        .title-section {
             text-align: center;
-            margin-bottom: 28px;
-            padding: 12px 0;
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(16px);
-            border-radius: 48px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            margin-bottom: 22px;
         }
-
-        .student-info {
-            font-size: 26px;
+        .main-title {
+            font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #1f2f3e, #2c4c6c);
+            letter-spacing: -0.3px;
+            background: linear-gradient(125deg, #1f3a4b, #2c6280);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
-        .current-time {
-            font-size: 13px;
+        .main-title::before {
+            content: "📖";
+            font-size: 28px;
+            background: none;
+            -webkit-background-clip: unset;
+            color: #2c6280;
+        }
+        .live-clock {
+            font-family: 'SF Mono', 'JetBrains Mono', monospace;
+            font-size: 14px;
             font-weight: 500;
-            color: #2c5a7a;
-            background: rgba(255,255,240,0.7);
+            background: rgba(255, 250, 235, 0.7);
+            backdrop-filter: blur(8px);
             display: inline-block;
-            padding: 4px 16px;
-            border-radius: 40px;
-            backdrop-filter: blur(4px);
+            padding: 6px 20px;
+            border-radius: 48px;
+            color: #1e4f6e;
+            letter-spacing: 0.3px;
+            border: 0.5px solid rgba(255,246,205,0.8);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
         }
 
+        /* 菜单栏：独立风格，浅蓝渐变，与下方卡片区分 */
+        .action-bar {
+            background: linear-gradient(115deg, rgba(225, 240, 255, 0.88), rgba(205, 225, 245, 0.92));
+            backdrop-filter: blur(20px);
+            border-radius: 80px;
+            padding: 10px 20px;
+            margin-bottom: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 14px 20px;
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,245,0.6);
+            border: 0.5px solid rgba(255, 255, 245, 0.7);
+        }
+
+        .date-set-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(250, 250, 255, 0.7);
+            padding: 5px 16px;
+            border-radius: 48px;
+            transition: all 0.2s;
+            box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .date-set-group:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-1px);
+        }
+        .menu-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e4d6e;
+        }
+        .menu-input {
+            background: #fffef7;
+            border: 1px solid #bfd6e8;
+            border-radius: 32px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-family: monospace;
+            width: 130px;
+            outline: none;
+            transition: 0.1s;
+        }
+        .menu-input:focus {
+            border-color: #2c7aa0;
+            box-shadow: 0 0 0 2px rgba(44,122,160,0.2);
+        }
+        .menu-btn {
+            background: #2c5f82;
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 6px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .menu-btn:hover {
+            background: #1b4868;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .reset-btn {
+            background: #8b6b4d;
+        }
+        .reset-btn:hover {
+            background: #6f4e32;
+        }
+        .divider {
+            width: 1px;
+            height: 28px;
+            background: rgba(100, 120, 140, 0.35);
+            margin: 0 4px;
+        }
+
+        /* 课表卡片容器 */
         .schedule-container {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 18px;
+            margin-top: 8px;
+        }
+
+        /* 假期专属界面 */
+        .holiday-card {
+            background: linear-gradient(145deg, rgba(255, 245, 225, 0.92), rgba(255, 235, 205, 0.88));
+            backdrop-filter: blur(16px);
+            border-radius: 56px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 215, 150, 0.6);
+            transition: all 0.3s ease;
+        }
+        .holiday-icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.1));
+        }
+        .holiday-title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(125deg, #e9a23b, #f7b05e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+        .holiday-sub {
+            font-size: 18px;
+            font-weight: 500;
+            color: #aa771c;
+            margin-bottom: 20px;
+        }
+        .holiday-message {
+            background: rgba(255,248,225,0.7);
+            border-radius: 48px;
+            padding: 16px 20px;
+            color: #8a5a2a;
+            font-size: 15px;
+            font-weight: 500;
+            margin-top: 12px;
+            backdrop-filter: blur(4px);
+        }
+        .holiday-countdown {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 16px;
+            color: #cf8d3a;
+            margin-top: 16px;
         }
 
         .class-card {
             width: 100%;
-            padding: 16px 20px;
-            border-radius: 28px;
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+            padding: 20px 24px;
+            border-radius: 36px;
+            background: rgba(255, 255, 250, 0.78);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px rgba(255,255,245,0.8);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.25s ease;
-            border: 0.5px solid rgba(255,255,245,0.85);
-            opacity: 0.85;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 0.5px solid rgba(255,255,230,0.9);
+        }
+        .class-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 252, 0.94);
+            box-shadow: 0 22px 32px -12px rgba(0, 0, 0, 0.15);
         }
 
         .class-card.active {
-            background: linear-gradient(125deg, #2b6ef0, #3b8aff);
+            background: linear-gradient(115deg, #2b6ef0, #3f8eff);
             color: white;
-            box-shadow: 0 16px 28px -8px rgba(43, 110, 240, 0.4);
-            border: none;
+            box-shadow: 0 20px 28px -8px rgba(43, 110, 240, 0.45);
             transform: scale(1.01);
-            opacity: 1;
+            border: none;
         }
 
         .class-card.break-time {
-            background: rgba(253, 216, 53, 0.22);
+            background: linear-gradient(115deg, rgba(255, 242, 201, 0.92), rgba(255, 247, 220, 0.9));
             backdrop-filter: blur(12px);
-            border-left: 6px solid #f59e0b;
-            background: rgba(255, 242, 209, 0.85);
-            color: #b45f06;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-            opacity: 1;
-        }
-        .class-card.break-time .status-tag {
-            background: #ffecb3;
-            color: #b76e0e;
-            font-weight: 700;
+            border-left: 5px solid #f5a623;
+            color: #aa6f20;
         }
 
         .time-slot {
-            font-weight: 700;
-            font-size: 14px;
-            min-width: 72px;
-            opacity: 0.85;
-            letter-spacing: 0.3px;
+            font-weight: 800;
+            font-size: 16px;
+            min-width: 80px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.2px;
+            background: rgba(0,0,0,0.04);
+            padding: 6px 0;
+            border-radius: 28px;
+            text-align: center;
+        }
+        .class-card.active .time-slot {
+            background: rgba(255,255,255,0.15);
         }
 
         .class-details {
             flex: 1;
-            margin-left: 12px;
+            margin-left: 18px;
         }
-
         .class-name {
-            font-size: 16px;
-            font-weight: 620;
-            margin-bottom: 4px;
-            word-break: break-word;
+            font-size: 18px;
+            font-weight: 640;
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
         }
-
         .class-room {
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.75;
-            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .class-room::before {
+            content: "📍";
+            font-size: 11px;
+            opacity: 0.8;
         }
 
         .status-tag {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 40px;
-            background: #eef2f6;
-            color: #2c3e50;
+            padding: 8px 18px;
+            border-radius: 60px;
             white-space: nowrap;
+            transition: all 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             backdrop-filter: blur(2px);
-            transition: all 0.2s;
         }
-
-        .class-card.active .status-tag {
-            background: rgba(255, 255, 255, 0.28);
-            color: white;
+        .status-active {
+            background: #d8f0e2 !important;
+            color: #367a51 !important;
+            box-shadow: 0 0 0 1px rgba(75, 150, 100, 0.15);
         }
-
+        .status-completed {
+            background: #e2f4ea !important;
+            color: #2c6e47 !important;
+            font-weight: 600 !important;
+            box-shadow: 0 0 0 1px rgba(60, 130, 80, 0.1);
+        }
+        .status-pending {
+            background: #ffe1dd !important;
+            color: #d1452b !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 0 1px rgba(209, 69, 43, 0.4);
+            text-shadow: 0 0 2px rgba(255,255,200,0.2);
+        }
+        .class-card.break-time .status-tag {
+            background: #fff0cf !important;
+            color: #c67c1e !important;
+            font-weight: 700;
+        }
+        .class-card.active .status-tag.status-active {
+            background: rgba(255,255,255,0.9) !important;
+            color: #2c7a4a !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
         .end-msg {
             text-align: center;
-            margin-top: 24px;
-            padding: 12px;
+            margin-top: 18px;
+            padding: 16px;
             font-size: 13px;
-            background: rgba(255,255,240,0.5);
-            border-radius: 40px;
-            color: #5a6e7c;
-            backdrop-filter: blur(4px);
+            background: rgba(235, 245, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            font-weight: 500;
+            color: #3f6988;
         }
 
-        @media (max-width: 500px) {
-            .class-card {
+        /* 模态框保持原有精致风格 */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 35, 55, 0.55);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s ease;
+        }
+        .modal-mask.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: #fffffffa;
+            border-radius: 56px;
+            width: 94%;
+            max-width: 1100px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px 28px;
+            box-shadow: 0 35px 55px rgba(0, 0, 0, 0.25);
+        }
+        .modal-container h3 {
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: #1e415e;
+        }
+        .week-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0 18px;
+            border-bottom: 1px solid #e2edf5;
+            padding-bottom: 14px;
+        }
+        .week-tab {
+            background: #ecf3f9;
+            border-radius: 60px;
+            padding: 8px 22px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.15s;
+            font-size: 14px;
+        }
+        .week-tab.active-tab {
+            background: #2c5a7a;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .course-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            font-size: 13px;
+        }
+        .course-table th, .course-table td {
+            background: #fefcf7;
+            border: none;
+            padding: 12px 10px;
+            vertical-align: middle;
+            border-radius: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03), inset 0 0 0 1px rgba(210, 225, 240, 0.6);
+        }
+        .course-table input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 32px;
+            border: 1px solid #cfe0ed;
+            background: #ffffff;
+            font-size: 13px;
+        }
+        .del-row {
+            background: #c27d62 !important;
+            padding: 6px 14px !important;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 28px;
+        }
+        .btn-save-all {
+            background: #2e7d64;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 44px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        #addCourseBtn {
+            background: #3b7ca5;
+            color: white;
+            border: none;
+            padding: 9px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-top: 18px;
+            cursor: pointer;
+        }
+        .btn-close-modal {
+            background: #b7cadb;
+            color: #2b4b6e;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 44px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .next-week-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .next-week-day {
+            background: #fefef9;
+            border-radius: 32px;
+            padding: 14px 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03), inset 0 0 0 1px rgba(210,225,240,0.5);
+        }
+        .day-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f4e6e;
+            border-left: 5px solid #3f8eff;
+            padding-left: 14px;
+            margin-bottom: 12px;
+        }
+        .day-course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .next-course-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 12px;
+            background: #fafafc;
+            border-radius: 28px;
+        }
+        .next-course-time {
+            min-width: 70px;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 14px;
+            color: #2c5a7a;
+        }
+        .next-course-info {
+            flex: 1;
+        }
+        .next-course-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .next-course-room {
+            font-size: 12px;
+            color: #6f8faa;
+        }
+        .no-course {
+            color: #8ea5bb;
+            padding: 8px 12px;
+            font-style: italic;
+            font-size: 13px;
+        }
+        .week-summary {
+            background: #eef3fc;
+            padding: 12px 18px;
+            border-radius: 48px;
+            margin: 12px 0 20px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c6280;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 20px 16px;
+            }
+            .action-bar {
+                border-radius: 48px;
                 padding: 12px 16px;
+                gap: 10px;
             }
-            .time-slot {
+            .date-set-group {
+                padding: 3px 12px;
+            }
+            .menu-input {
+                width: 110px;
+                padding: 5px 8px;
+            }
+            .menu-btn {
+                padding: 5px 14px;
+                font-size: 11px;
+            }
+            .class-card {
+                flex-wrap: wrap;
+                padding: 16px;
+            }
+            .holiday-title {
+                font-size: 26px;
+            }
+            .live-clock {
                 font-size: 12px;
-                min-width: 60px;
+                padding: 4px 16px;
             }
-            .status-tag {
-                font-size: 10px;
-                padding: 4px 10px;
+        }
+        @media (max-width: 600px) {
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+                background: linear-gradient(115deg, rgba(225, 240, 255, 0.94), rgba(205, 225, 245, 0.96));
+                border-radius: 36px;
+            }
+            .date-set-group {
+                justify-content: space-between;
+            }
+            .divider {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <div class="student-info">📖 王国鑫的日程</div>
-        <div class="current-time" id="currentInfo"></div>
+    <!-- 标题 + 日期时间，居中显示 -->
+    <div class="title-section">
+        <div class="main-title">智慧天地</div>
+        <div class="live-clock" id="liveClock">加载中...</div>
     </div>
+
+    <!-- 所有菜单操作，独立一行，浅蓝渐变风格 -->
+    <div class="action-bar">
+        <div class="date-set-group">
+            <span class="menu-label">📅 开学</span>
+            <input type="date" id="termStartInput" class="menu-input">
+            <button id="updateTermBtn" class="menu-btn" style="padding:6px 16px;">更新</button>
+        </div>
+        <div class="date-set-group">
+            <span class="menu-label">🎓 学期结束</span>
+            <input type="date" id="termEndInput" class="menu-input">
+            <button id="updateTermEndBtn" class="menu-btn" style="padding:6px 16px;">设置</button>
+        </div>
+        <div class="divider"></div>
+        <button id="editScheduleBtn" class="menu-btn">✏️ 编辑课表</button>
+        <button id="nextWeekBtn" class="menu-btn">📅 下周课表</button>
+        <button id="resetDefaultBtn" class="menu-btn reset-btn">⟳ 重置默认</button>
+    </div>
+
+    <!-- 课表卡片区 / 假期替换区 -->
     <div class="schedule-container" id="schedule"></div>
 </div>
 
-<script>
-    // ---------- 学期配置 (2026年3月9日开学) ----------
-    const TERM_START_DATE = new Date("2026-03-09");
+<!-- 课表编辑模态框 -->
+<div id="scheduleModal" class="modal-mask">
+    <div class="modal-container">
+        <h3>✏️ 单双周课表编辑器</h3>
+        <div style="font-size:13px; background:#EFF6FC; padding:8px 16px; border-radius: 32px; margin-bottom: 8px;">✨ 支持修改课程名称、教室、时间，单周/双周独立设置</div>
+        <div class="week-tabs" id="weekTabs"></div>
+        <div id="modalCourseEditor"></div>
+        <div class="action-buttons">
+            <button class="btn-save-all" id="saveScheduleBtn">💾 保存全部修改</button>
+            <button class="menu-btn" id="closeModalBtn" style="background:#b7cadb; color:#2b4b6e;">取消</button>
+        </div>
+    </div>
+</div>
 
-    // ---------- 完整课表 (原始单双周数据，时长均为纯教学时长) ----------
-    const weeklySchedule = [
+<!-- 下周课表模态框 -->
+<div id="nextWeekModal" class="modal-mask">
+    <div class="modal-container">
+        <h3>📆 下周课程预览</h3>
+        <div class="week-summary" id="nextWeekSummary"></div>
+        <div id="nextWeekContent" class="next-week-grid"></div>
+        <div class="action-buttons">
+            <button class="btn-close-modal" id="closeNextWeekBtn">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 默认课表 ----------
+    const DEFAULT_SCHEDULE = [
         [], // 周日
         [   // 周一
             { start: "08:15", dur: 90, odd: { name: "劳动教育", room: "博学楼C202" }, even: { name: "Java面向对象程序设计", room: "格物楼机房201" } },
@@ -219,17 +654,28 @@
         []  // 周六
     ];
 
-    // 获取当前周数 (单双周)
+    let currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+    let termStartDate = new Date("2026-03-09");
+    let termEndDate = new Date("2026-07-15");   // 默认学期结束日期
+
+    // ---------- 辅助函数 ----------
     function getCurrentWeek() {
         const now = new Date();
-        const diffTime = now - TERM_START_DATE;
+        const diffTime = now - termStartDate;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         let week = Math.floor(diffDays / 7) + 1;
         if (week < 1) week = 1;
         return week;
     }
 
-    // 将 "HH:MM" 转换为今天的时间戳（毫秒）
+    function isHoliday() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const end = new Date(termEndDate);
+        end.setHours(0, 0, 0, 0);
+        return now >= end;
+    }
+
     function getTimestamp(timeStr) {
         const [h, m] = timeStr.split(':').map(Number);
         const d = new Date();
@@ -237,99 +683,147 @@
         return d.getTime();
     }
 
-    // 获取今天某个固定时刻的时间戳
     function getTodayTime(hour, minute) {
         const d = new Date();
         d.setHours(hour, minute, 0, 0);
         return d.getTime();
     }
 
-    // 判断是否为上午课程 (开始时间 < 12:00)
-    function isMorningClass(startTimeStr) {
-        const hour = parseInt(startTimeStr.split(':')[0], 10);
+    function isMorningClass(startStr) {
+        const hour = parseInt(startStr.split(':')[0], 10);
         return hour < 12;
     }
 
-    // 核心渲染函数 —— 完全修复结束时间 bug：将休息时长计入课程总占用时间
-    function render() {
+    function persistData() {
+        localStorage.setItem('smart_schedule_data', JSON.stringify(currentSchedule));
+        localStorage.setItem('smart_term_start', termStartDate.toISOString());
+        localStorage.setItem('smart_term_end', termEndDate.toISOString());
+    }
+
+    function loadPersistedData() {
+        const savedSchedule = localStorage.getItem('smart_schedule_data');
+        if (savedSchedule) {
+            try { currentSchedule = JSON.parse(savedSchedule); } catch(e) {}
+        }
+        const savedTerm = localStorage.getItem('smart_term_start');
+        if (savedTerm) {
+            const parsed = new Date(savedTerm);
+            if (!isNaN(parsed.getTime())) termStartDate = parsed;
+        }
+        const savedEnd = localStorage.getItem('smart_term_end');
+        if (savedEnd) {
+            const parsedEnd = new Date(savedEnd);
+            if (!isNaN(parsedEnd.getTime())) termEndDate = parsedEnd;
+        }
+        document.getElementById('termStartInput').value = termStartDate.toISOString().slice(0,10);
+        document.getElementById('termEndInput').value = termEndDate.toISOString().slice(0,10);
+    }
+
+    function resetToDefault() {
+        currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+        persistData();
+        refreshAll();
+        alert("✨ 课表已重置为默认预设 (含完整单双周课程)");
+    }
+
+    function updateLiveClock() {
+        const now = new Date();
+        const weekNum = getCurrentWeek();
+        const isOddWeek = weekNum % 2 !== 0;
+        const weekType = isOddWeek ? "✨单周" : "🌟双周";
+        const formatted = now.toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+        const timeStr = now.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        const clockDiv = document.getElementById('liveClock');
+        if (clockDiv) {
+            clockDiv.innerHTML = `${formatted} ${timeStr}  ·  <span style="background:#2c5a7a20; padding:2px 8px; border-radius:30px;">第${weekNum}周 ${weekType}</span>`;
+        }
+    }
+
+    // 假期界面渲染
+    function renderHolidayUI() {
+        const container = document.getElementById('schedule');
+        const now = new Date();
+        const daysDiff = Math.ceil((now - termEndDate) / (1000 * 60 * 60 * 24));
+        const holidayDays = daysDiff > 0 ? daysDiff : 1;
+        const holidayCard = document.createElement('div');
+        holidayCard.className = 'holiday-card';
+        holidayCard.innerHTML = `
+            <div class="holiday-icon">🏖️🌊</div>
+            <div class="holiday-title">假期模式 · 悠然时光</div>
+            <div class="holiday-sub">课表正在休息中，好好放松吧~</div>
+            <div class="holiday-message">
+                📚 暂时没有课程安排<br>
+                享受阳光、阅读与热爱的一切 🌟<br>
+                新学期能量蓄力中 ✨
+            </div>
+            <div class="holiday-countdown">🎉 假期已开启 ${holidayDays} 天  🎉</div>
+            <div style="margin-top:18px; font-size:12px; opacity:0.7;">学期结束日期：${termEndDate.toLocaleDateString()}</div>
+        `;
+        container.innerHTML = '';
+        container.appendChild(holidayCard);
+    }
+
+    // 正常课表渲染（保留原有逻辑）
+    function renderNormalSchedule() {
         const now = new Date();
         const currentDay = now.getDay();
         const nowMs = now.getTime();
-
-        const weekNum = getCurrentWeek();
-        const isOddWeek = weekNum % 2 !== 0;
-        const weekType = isOddWeek ? "单周" : "双周";
-
-        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        const formattedNow = now.toLocaleDateString('zh-CN', options);
-        document.getElementById('currentInfo').innerHTML = `${formattedNow} &nbsp;|&nbsp; 第${weekNum}周 (${weekType})`;
+        const isOddWeek = (getCurrentWeek() % 2 !== 0);
 
         const container = document.getElementById('schedule');
         container.innerHTML = '';
 
-        const rawClasses = weeklySchedule[currentDay];
-        if (!rawClasses || rawClasses.length === 0) {
-            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">✨ 今天没有安排课程</div><div class="class-room">享受自由时光，放松或自习吧 🍃</div></div></div>';
+        const rawClasses = currentSchedule[currentDay] || [];
+        if (rawClasses.length === 0) {
+            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">🍃 今天没有课程安排</div><div class="class-room">点击「编辑课表」定制你的专属学习日程</div></div></div>';
             return;
         }
 
-        // 1. 根据单双周过滤有效课程
         const validItems = [];
         for (const cls of rawClasses) {
             const courseData = isOddWeek ? cls.odd : cls.even;
-            if (courseData && courseData.name) {
+            if (courseData && courseData.name && courseData.name.trim() !== "") {
                 validItems.push({
                     startStr: cls.start,
-                    teachingMin: cls.dur,      // 纯教学时长 (分钟)
+                    teachingMin: cls.dur,
                     course: courseData
                 });
             }
         }
 
         if (validItems.length === 0) {
-            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">📭 本周今日无课程安排</div><div class="class-room">调整节奏，劳逸结合</div></div></div>';
+            container.innerHTML = '<div class="class-card"><div class="class-details"><div class="class-name">📭 本周今日无课程 (单双周差异)</div><div class="class-room">可编辑课表添加课程</div></div></div>';
             return;
         }
 
-        // 2. 提取上午课程并按时间排序 (用于确定第一节、第二节)
+        // 课间休息逻辑
         const morningItems = validItems.filter(item => isMorningClass(item.startStr));
-        morningItems.sort((a, b) => getTimestamp(a.startStr) - getTimestamp(b.startStr));
-
-        // 3. 为上午课程添加休息区间，并计算真正的结束时间（原始教学时长 + 休息时长）
-        for (let i = 0; i < morningItems.length; i++) {
+        morningItems.sort((a,b) => getTimestamp(a.startStr) - getTimestamp(b.startStr));
+        for (let i=0; i<morningItems.length; i++) {
             const item = morningItems[i];
-            item.breakPeriod = null;      // 休息区间 { start, end, duration }
+            item.breakPeriod = null;
             const startTs = getTimestamp(item.startStr);
-            // 纯教学结束时间（不含休息）
             const pureEndTs = startTs + item.teachingMin * 60 * 1000;
 
-            // 第一节: 09:00 - 09:05 (休息5分钟)
-            if (i === 0) {
-                const breakStart = getTodayTime(9, 0);
-                const breakEnd = getTodayTime(9, 5);
-                // 确保休息区间落在纯教学时段内 (满足 08:15~09:45 包含 09:00~09:05)
+            if (i === 0) { 
+                const breakStart = getTodayTime(9,0);
+                const breakEnd = getTodayTime(9,5);
                 if (breakStart >= startTs && breakEnd <= pureEndTs) {
                     item.breakPeriod = { start: breakStart, end: breakEnd, duration: 5, type: 'first' };
                 }
-            }
-            // 第二节: 11:00 开始，根据教室决定休息时长 (博学楼5分钟，其他15分钟)
-            else if (i === 1) {
+            } else if (i === 1) { 
                 const roomName = item.course.room || "";
                 const isBoXue = roomName.includes("博学楼");
                 const restDur = isBoXue ? 5 : 15;
-                const breakStart = getTodayTime(11, 0);
+                const breakStart = getTodayTime(11,0);
                 const breakEnd = breakStart + restDur * 60 * 1000;
                 if (breakStart >= startTs && breakEnd <= pureEndTs) {
                     item.breakPeriod = { start: breakStart, end: breakEnd, duration: restDur, type: 'second', isBoXueLou: isBoXue };
                 }
             }
-
-            // 关键修复：计算课程真正的结束时间 = 纯教学结束时间 + 休息时长
-            const breakDuration = item.breakPeriod ? item.breakPeriod.duration : 0;
-            item.realEndTs = startTs + (item.teachingMin + breakDuration) * 60 * 1000;
+            const breakDur = item.breakPeriod ? item.breakPeriod.duration : 0;
+            item.realEndTs = startTs + (item.teachingMin + breakDur) * 60 * 1000;
         }
-
-        // 对于非上午课程（下午/晚上）或没有休息的课程，realEndTs = 纯教学结束时间
         for (const item of validItems) {
             if (item.realEndTs === undefined) {
                 const startTs = getTimestamp(item.startStr);
@@ -338,94 +832,202 @@
             }
         }
 
-        // 4. 获取每个课程的当前状态 (基于真正的结束时间)
-        function getStatusForItem(item, nowMs) {
+        function getStatus(item, nowMs) {
             const startTs = getTimestamp(item.startStr);
-            const endTs = item.realEndTs;          // 已包含休息的结束时间
-            const breakPeriod = item.breakPeriod;
-
-            // ① 课间休息中
-            if (breakPeriod && nowMs >= breakPeriod.start && nowMs < breakPeriod.end) {
-                const remainMs = breakPeriod.end - nowMs;
-                const remainMin = Math.floor(remainMs / 60000);
-                const remainSec = Math.floor((remainMs % 60000) / 1000);
-                let msg = remainMin > 0 ? `休息 ${remainMin}分${remainSec}秒` : `休息 ${remainSec}秒`;
-                if (breakPeriod.type === 'first') msg = `☕ 课间小憩 · ${msg}`;
-                else if (breakPeriod.type === 'second') {
-                    if (breakPeriod.isBoXueLou) msg = `📚 博学楼短休 · ${msg}`;
-                    else msg = `🏃 长课间 · ${msg}`;
-                }
-                return { active: false, isBreak: true, text: msg };
+            const endTs = item.realEndTs;
+            const bp = item.breakPeriod;
+            if (bp && nowMs >= bp.start && nowMs < bp.end) {
+                const remain = Math.floor((bp.end - nowMs) / 1000);
+                const min = Math.floor(remain/60), sec = remain%60;
+                let msg = min>0?`休息 ${min}分${sec}秒`:`休息 ${sec}秒`;
+                if (bp.type==='first') msg = `☕ 短休 · ${msg}`;
+                else if (bp.type==='second') msg = bp.isBoXueLou ? `📚 博学楼小憩 · ${msg}` : `🏃 长课间 · ${msg}`;
+                return { active: false, isBreak: true, text: msg, type: 'break' };
             }
-
-            // ② 正常上课中 (但跳过休息区间)
             if (nowMs >= startTs && nowMs < endTs) {
-                // 计算已上课时 (扣除休息时长)
-                let elapsedTeachingMs = nowMs - startTs;
-                if (breakPeriod && nowMs >= breakPeriod.end) {
-                    const breakLen = breakPeriod.end - breakPeriod.start;
-                    elapsedTeachingMs = Math.max(0, elapsedTeachingMs - breakLen);
-                } else if (breakPeriod && nowMs > breakPeriod.start && nowMs < breakPeriod.end) {
-                    // 这种情况不会进入，因为已经在上面的休息区间处理了
-                }
-                const elapsedMin = Math.floor(elapsedTeachingMs / 60000);
-                return { active: true, isBreak: false, text: `📖 已上 ${elapsedMin} 分钟` };
+                let elapsed = nowMs - startTs;
+                if (bp && nowMs >= bp.end) elapsed -= (bp.end - bp.start);
+                const min = Math.floor(elapsed / 60000);
+                return { active: true, isBreak: false, text: `📖 已上 ${min} 分钟`, type: 'active' };
             }
-
-            // ③ 未开始
             if (nowMs < startTs) {
                 const diff = startTs - nowMs;
-                const hours = Math.floor(diff / 3600000);
-                const mins = Math.floor((diff % 3600000) / 60000);
-                const waitText = hours > 0 ? `还有 ${hours}时${mins}分` : `还有 ${mins} 分钟`;
-                return { active: false, isBreak: false, text: waitText };
+                const hours = Math.floor(diff/3600000), mins = Math.floor((diff%3600000)/60000);
+                const timeText = hours>0?`还有 ${hours}时${mins}分`:`还有 ${mins}分钟`;
+                return { active: false, isBreak: false, text: timeText, type: 'pending' };
             }
-
-            // ④ 已结束
-            return { active: false, isBreak: false, text: "✅ 已结束" };
+            return { active: false, isBreak: false, text: "✅ 完美结束", type: 'completed' };
         }
 
-        // 5. 渲染所有卡片
-        let hasActive = false;
-        let allFinished = true;
-
+        let hasActive = false, allFinish = true;
         for (const item of validItems) {
-            const status = getStatusForItem(item, nowMs);
-            const isActive = status.active;
-            const isBreak = status.isBreak;
-            let statusText = status.text;
-
-            if (isActive) hasActive = true;
-            if (nowMs < item.realEndTs) allFinished = false;
-
+            const state = getStatus(item, nowMs);
+            if (state.active) hasActive = true;
+            if (nowMs < item.realEndTs) allFinish = false;
             let cardClass = "class-card";
-            if (isActive) cardClass += " active";
-            else if (isBreak) cardClass += " break-time";
-
+            if (state.active) cardClass += " active";
+            else if (state.isBreak) cardClass += " break-time";
+            
             const card = document.createElement('div');
             card.className = cardClass;
+            let statusClass = "";
+            if (state.type === 'active') statusClass = "status-active";
+            else if (state.type === 'completed') statusClass = "status-completed";
+            else if (state.type === 'pending') statusClass = "status-pending";
+            
             card.innerHTML = `
                 <div class="time-slot">${item.startStr}</div>
                 <div class="class-details">
-                    <div class="class-name">${item.course.name}</div>
-                    <div class="class-room">📍 ${item.course.room || "未标注"}</div>
+                    <div class="class-name">${escapeHtml(item.course.name)}</div>
+                    <div class="class-room">${escapeHtml(item.course.room || "未标注")}</div>
                 </div>
-                <div class="status-tag">${statusText}</div>
+                <div class="status-tag ${statusClass}">${state.text}</div>
             `;
             container.appendChild(card);
         }
-
-        if (!hasActive && allFinished && validItems.length > 0) {
-            const footer = document.createElement('div');
+        if (!hasActive && allFinish && validItems.length) {
+            let footer = document.createElement('div');
             footer.className = "end-msg";
-            footer.innerHTML = "🌙 今日课程已全部结束 · 满载而归，好好放松吧 ✨";
+            footer.innerHTML = "🌙 今日课程已全部结束 · 满载而归 ✨";
             container.appendChild(footer);
         }
     }
 
-    // 每秒刷新
-    setInterval(render, 1000);
-    render();
+    function renderSchedule() {
+        if (isHoliday()) {
+            renderHolidayUI();
+        } else {
+            renderNormalSchedule();
+        }
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    function refreshAll() {
+        updateLiveClock();
+        renderSchedule();
+    }
+
+    // ---- 下周课表预览 ----
+    function showNextWeekSchedule() {
+        const currentWeek = getCurrentWeek();
+        const nextWeekNum = currentWeek + 1;
+        const isNextWeekOdd = (nextWeekNum % 2 !== 0);
+        const weekTypeText = isNextWeekOdd ? "单周" : "双周";
+        document.getElementById('nextWeekSummary').innerHTML = `📌 下周为第 ${nextWeekNum} 周 · ${weekTypeText}课表（基于当前课表数据）`;
+        const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+        const container = document.getElementById('nextWeekContent');
+        container.innerHTML = '';
+        for (let dayIdx = 0; dayIdx <= 6; dayIdx++) {
+            const dayCourses = currentSchedule[dayIdx] || [];
+            const validCourses = [];
+            for (const cls of dayCourses) {
+                const courseData = isNextWeekOdd ? cls.odd : cls.even;
+                if (courseData && courseData.name && courseData.name.trim() !== "") {
+                    validCourses.push({ start: cls.start, name: courseData.name, room: courseData.room || "未标注" });
+                }
+            }
+            validCourses.sort((a,b) => a.start.localeCompare(b.start));
+            const dayCard = document.createElement('div');
+            dayCard.className = 'next-week-day';
+            dayCard.innerHTML = `<div class="day-header">${weekdays[dayIdx]}</div><div class="day-course-list"></div>`;
+            const listDiv = dayCard.querySelector('.day-course-list');
+            if (validCourses.length === 0) {
+                listDiv.innerHTML = '<div class="no-course">✨ 今日无课程安排</div>';
+            } else {
+                validCourses.forEach(c => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'next-course-item';
+                    itemDiv.innerHTML = `<div class="next-course-time">${c.start}</div><div class="next-course-info"><div class="next-course-name">${escapeHtml(c.name)}</div><div class="next-course-room">📍 ${escapeHtml(c.room)}</div></div>`;
+                    listDiv.appendChild(itemDiv);
+                });
+            }
+            container.appendChild(dayCard);
+        }
+        document.getElementById('nextWeekModal').classList.add('active');
+    }
+
+    function closeNextWeekModal() { document.getElementById('nextWeekModal').classList.remove('active'); }
+
+    // ---- 课表编辑器逻辑 ----
+    let currentEditWeekday = 1;
+    const weekdays = ["周日","周一","周二","周三","周四","周五","周六"];
+    function openEditorModal() {
+        document.getElementById('scheduleModal').classList.add('active');
+        renderWeekTabs();
+        renderCourseTable(currentEditWeekday);
+    }
+    function renderWeekTabs() {
+        const container = document.getElementById('weekTabs');
+        container.innerHTML = '';
+        for (let i=0; i<weekdays.length; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'week-tab' + (currentEditWeekday === i ? ' active-tab' : '');
+            btn.innerText = weekdays[i];
+            btn.onclick = () => { currentEditWeekday = i; renderWeekTabs(); renderCourseTable(i); };
+            container.appendChild(btn);
+        }
+    }
+    function renderCourseTable(weekIdx) {
+        const containerDiv = document.getElementById('modalCourseEditor');
+        const courses = currentSchedule[weekIdx] || [];
+        let html = `<table class="course-table"><thead><tr><th>⏰时间</th><th>📘单周课程</th><th>🏠单周教室</th><th>📗双周课程</th><th>🏠双周教室</th><th>⚙️操作</th></tr></thead><tbody>`;
+        for (let idx=0; idx<courses.length; idx++) {
+            const c = courses[idx];
+            html += `<tr>
+                <td><input type="text" value="${c.start}" class="edit-start" data-idx="${idx}" style="width:80px;"></td>
+                <td><input type="text" value="${escapeHtml(c.odd.name)}" class="edit-odd-name" data-idx="${idx}"></td>
+                <td><input type="text" value="${escapeHtml(c.odd.room)}" class="edit-odd-room" data-idx="${idx}"></td>
+                <td><input type="text" value="${escapeHtml(c.even.name)}" class="edit-even-name" data-idx="${idx}"></td>
+                <td><input type="text" value="${escapeHtml(c.even.room)}" class="edit-even-room" data-idx="${idx}"></td>
+                <td><button class="menu-btn del-row" data-idx="${idx}" style="background:#c27d62;">删除</button></td>
+            </tr>`;
+        }
+        html += `</tbody></table><div style="margin-top:14px;"><button id="addCourseBtn" class="menu-btn" style="background:#366f91;">+ 新增课程节次</button></div>`;
+        containerDiv.innerHTML = html;
+        document.querySelectorAll('.del-row').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                currentSchedule[weekIdx].splice(idx,1);
+                renderCourseTable(weekIdx);
+            });
+        });
+        document.querySelectorAll('.edit-start').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(inp.getAttribute('data-idx')); currentSchedule[weekIdx][idx].start = inp.value; }));
+        document.querySelectorAll('.edit-odd-name').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(inp.getAttribute('data-idx')); currentSchedule[weekIdx][idx].odd.name = inp.value; }));
+        document.querySelectorAll('.edit-odd-room').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(inp.getAttribute('data-idx')); currentSchedule[weekIdx][idx].odd.room = inp.value; }));
+        document.querySelectorAll('.edit-even-name').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(inp.getAttribute('data-idx')); currentSchedule[weekIdx][idx].even.name = inp.value; }));
+        document.querySelectorAll('.edit-even-room').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(inp.getAttribute('data-idx')); currentSchedule[weekIdx][idx].even.room = inp.value; }));
+        const addBtn = document.getElementById('addCourseBtn');
+        if(addBtn) addBtn.onclick = () => {
+            currentSchedule[weekIdx].push({ start: "08:15", dur: 90, odd: { name: "新课程", room: "教室A" }, even: { name: "新课程双周", room: "教室B" } });
+            renderCourseTable(weekIdx);
+        };
+    }
+    function closeModal() { document.getElementById('scheduleModal').classList.remove('active'); }
+    function saveScheduleFromModal() { persistData(); closeModal(); refreshAll(); alert("✅ 课表已保存 · 单双周内容已更新"); }
+
+    // ----- 初始化 -----
+    window.onload = () => {
+        loadPersistedData();
+        document.getElementById('updateTermBtn').onclick = () => {
+            const newDate = new Date(document.getElementById('termStartInput').value);
+            if(!isNaN(newDate.getTime())) { termStartDate = newDate; persistData(); refreshAll(); alert(`开学日已设为 ${termStartDate.toLocaleDateString()}`); }
+            else alert("日期无效");
+        };
+        document.getElementById('updateTermEndBtn').onclick = () => {
+            const newEnd = new Date(document.getElementById('termEndInput').value);
+            if(!isNaN(newEnd.getTime())) { termEndDate = newEnd; persistData(); refreshAll(); alert(`学期结束日期已设为 ${termEndDate.toLocaleDateString()}`); }
+            else alert("日期无效");
+        };
+        document.getElementById('editScheduleBtn').onclick = () => openEditorModal();
+        document.getElementById('nextWeekBtn').onclick = () => showNextWeekSchedule();
+        document.getElementById('resetDefaultBtn').onclick = () => { if(confirm("重置将丢失所有课表修改，确定恢复默认？")) resetToDefault(); };
+        document.getElementById('saveScheduleBtn').onclick = () => saveScheduleFromModal();
+        document.getElementById('closeModalBtn').onclick = () => closeModal();
+        document.getElementById('closeNextWeekBtn').onclick = () => closeNextWeekModal();
+        refreshAll();
+        setInterval(() => { updateLiveClock(); renderSchedule(); }, 1000);
+    };
 </script>
 </body>
 </html>
