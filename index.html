@@ -3,13 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>灵动岛</title>
-    <!-- SheetJS 核心库 -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    <!-- Tesseract.js OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <title>灵动岛 · 王国鑫的世界</title>
     <style>
         * {
             margin: 0;
@@ -19,303 +13,399 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: radial-gradient(circle at 15% 30%, rgba(210, 230, 250, 0.9), #cddeef);
+            background: linear-gradient(145deg, #e9f0f9 0%, #d4e2f0 100%);
             background-attachment: fixed;
             color: #13294b;
             display: flex;
             justify-content: center;
-            padding: 28px 20px;
+            padding: 32px 20px;
             min-height: 100vh;
         }
 
+        /* 毛玻璃容器 */
         .container {
             width: 100%;
             max-width: 880px;
             margin: 0 auto;
         }
 
+        /* 头部区域 */
         .title-section {
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 28px;
         }
         .main-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            letter-spacing: -0.3px;
-            background: linear-gradient(125deg, #1f3a4b, #2c6280);
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #1f4760, #2f7d9c);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            margin-bottom: 8px;
-            display: flex;
+            margin-bottom: 12px;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 12px;
+            backdrop-filter: blur(4px);
+            padding: 4px 18px;
+            border-radius: 60px;
         }
         .main-title::before {
             content: "📖";
-            font-size: 28px;
+            font-size: 32px;
             background: none;
-            -webkit-background-clip: unset;
             color: #2c6280;
         }
         .live-clock {
             font-family: 'SF Mono', 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
-            background: rgba(255, 250, 235, 0.7);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 245, 0.7);
+            backdrop-filter: blur(12px);
             display: inline-block;
-            padding: 6px 20px;
-            border-radius: 48px;
+            padding: 8px 28px;
+            border-radius: 60px;
             color: #1e4f6e;
-            letter-spacing: 0.3px;
-            border: 0.5px solid rgba(255,246,205,0.8);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 248, 215, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
+        /* 简洁操作栏 — 仅留下周课表按钮 */
         .action-bar {
-            background: linear-gradient(115deg, rgba(225, 240, 255, 0.88), rgba(205, 225, 245, 0.92));
-            backdrop-filter: blur(20px);
-            border-radius: 80px;
-            padding: 10px 20px;
-            margin-bottom: 32px;
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
             justify-content: center;
-            gap: 14px 20px;
-            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255,255,245,0.6);
-            border: 0.5px solid rgba(255, 255, 245, 0.7);
+            margin-bottom: 32px;
         }
-
-        .date-set-group {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(250, 250, 255, 0.7);
-            padding: 5px 16px;
-            border-radius: 48px;
-            transition: all 0.2s;
-            box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.02);
-        }
-        .date-set-group:hover {
-            background: rgba(255, 255, 255, 0.85);
-            transform: translateY(-1px);
-        }
-        .menu-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e4d6e;
-        }
-        .menu-input {
-            background: #fffef7;
-            border: 1px solid #bfd6e8;
-            border-radius: 32px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-family: monospace;
-            width: 130px;
-            outline: none;
-            transition: 0.1s;
-        }
-        .menu-input:focus {
-            border-color: #2c7aa0;
-            box-shadow: 0 0 0 2px rgba(44,122,160,0.2);
-        }
-        .menu-btn {
-            background: #2c5f82;
+        .next-week-btn {
+            background: linear-gradient(115deg, #2c5f82, #1f4868);
             border: none;
             color: white;
-            border-radius: 40px;
-            padding: 6px 20px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .menu-btn:hover {
-            background: #1b4868;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-        .reset-btn {
-            background: #8b6b4d;
-        }
-        .reset-btn:hover {
-            background: #6f4e32;
-        }
-        .divider {
-            width: 1px;
-            height: 28px;
-            background: rgba(100, 120, 140, 0.35);
-            margin: 0 4px;
-        }
-
-        /* AI导入遮罩 */
-        .ai-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
-        }
-        .ai-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .ai-card {
-            background: white;
-            border-radius: 56px;
-            padding: 32px 40px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 30px 45px rgba(0,0,0,0.2);
-        }
-        .ai-spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #e0e7ef;
-            border-top-color: #2c6280;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 16px auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .ai-progress-text {
+            border-radius: 60px;
+            padding: 12px 36px;
             font-size: 16px;
             font-weight: 600;
-            color: #1e4f6e;
-            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
+        }
+        .next-week-btn:hover {
+            background: linear-gradient(115deg, #1f4a6b, #153a55);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 28px -8px rgba(0, 0, 0, 0.2);
+        }
+        .next-week-btn:active {
+            transform: translateY(1px);
+        }
+        .next-week-btn::before {
+            content: "📅";
+            font-size: 20px;
         }
 
+        /* 课程卡片容器 */
         .schedule-container {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 20px;
             margin-top: 8px;
         }
 
         /* 普通假期卡片 */
         .holiday-card {
-            background: linear-gradient(145deg, rgba(255, 245, 225, 0.92), rgba(255, 235, 205, 0.88));
-            backdrop-filter: blur(16px);
-            border-radius: 56px;
-            padding: 36px 28px;
+            background: linear-gradient(145deg, rgba(255, 245, 225, 0.96), rgba(255, 235, 205, 0.92));
+            backdrop-filter: blur(20px);
+            border-radius: 64px;
+            padding: 42px 28px;
             text-align: center;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 215, 150, 0.6);
+            box-shadow: 0 25px 40px -14px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 215, 150, 0.7);
         }
         /* 端午节专属卡片 */
         .dragonboat-card {
-            background: linear-gradient(145deg, rgba(220, 240, 200, 0.92), rgba(190, 220, 160, 0.88));
-            backdrop-filter: blur(16px);
-            border-radius: 56px;
-            padding: 36px 28px;
+            background: linear-gradient(145deg, rgba(215, 240, 190, 0.96), rgba(185, 215, 155, 0.92));
+            backdrop-filter: blur(20px);
+            border-radius: 64px;
+            padding: 42px 28px;
             text-align: center;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 40px -14px rgba(0, 0, 0, 0.2);
             border: 2px solid #6b8c3e;
         }
-        .holiday-icon { font-size: 72px; margin-bottom: 16px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.1)); }
-        .holiday-title { font-size: 32px; font-weight: 800; background: linear-gradient(125deg, #e9a23b, #f7b05e); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 12px; }
-        .dragonboat-title { font-size: 36px; font-weight: 800; background: linear-gradient(125deg, #2c6e2f, #4c9e2a); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 12px; letter-spacing: 2px; }
-        .holiday-sub { font-size: 18px; font-weight: 500; color: #aa771c; margin-bottom: 20px; }
+        .holiday-icon { font-size: 82px; margin-bottom: 20px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1)); }
+        .holiday-title { font-size: 34px; font-weight: 800; background: linear-gradient(125deg, #e9a23b, #f7b05e); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 12px; }
+        .dragonboat-title { font-size: 38px; font-weight: 800; background: linear-gradient(125deg, #2c6e2f, #4c9e2a); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 12px; letter-spacing: 2px; }
+        .holiday-sub { font-size: 19px; font-weight: 500; color: #aa771c; margin-bottom: 24px; }
         .dragonboat-sub { color: #4a6e2a; }
-        .holiday-message { background: rgba(255,248,225,0.7); border-radius: 48px; padding: 16px 20px; color: #8a5a2a; font-size: 15px; font-weight: 500; margin-top: 12px; backdrop-filter: blur(4px); }
-        .dragonboat-message { background: rgba(255,255,210,0.8); color: #3a5a1e; }
-        .holiday-countdown { font-family: monospace; font-weight: 600; font-size: 16px; color: #cf8d3a; margin-top: 16px; }
+        .holiday-message { background: rgba(255,248,225,0.75); border-radius: 60px; padding: 18px 24px; color: #8a5a2a; font-size: 16px; font-weight: 500; margin-top: 12px; backdrop-filter: blur(4px); }
+        .dragonboat-message { background: rgba(255,255,210,0.85); color: #3a5a1e; }
+        .holiday-countdown { font-family: monospace; font-weight: 600; font-size: 17px; color: #cf8d3a; margin-top: 18px; }
 
+        /* 每日课程卡片（现代磨砂玻璃） */
         .class-card {
             width: 100%;
-            padding: 20px 24px;
-            border-radius: 36px;
-            background: rgba(255, 255, 250, 0.78);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08);
+            padding: 24px 28px;
+            border-radius: 48px;
+            background: rgba(255, 255, 250, 0.85);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.25s;
-            border: 0.5px solid rgba(255,255,230,0.9);
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            border: 0.5px solid rgba(255, 255, 240, 0.9);
         }
-        .class-card:hover { transform: translateY(-3px); background: rgba(255, 255, 252, 0.94); }
-        .class-card.active { background: linear-gradient(115deg, #2b6ef0, #3f8eff); color: white; transform: scale(1.01); }
-        .class-card.break-time { background: linear-gradient(115deg, rgba(255, 242, 201, 0.92), rgba(255, 247, 220, 0.9)); border-left: 5px solid #f5a623; color: #aa6f20; }
-        .time-slot { font-weight: 800; font-size: 16px; min-width: 80px; font-family: monospace; background: rgba(0,0,0,0.04); padding: 6px 0; border-radius: 28px; text-align: center; }
-        .class-details { flex: 1; margin-left: 18px; }
-        .class-name { font-size: 18px; font-weight: 640; margin-bottom: 6px; }
-        .class-room { font-size: 12px; opacity: 0.75; display: flex; align-items: center; gap: 6px; }
-        .class-room::before { content: "📍"; font-size: 11px; opacity: 0.8; }
-        .status-tag { font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 60px; white-space: nowrap; backdrop-filter: blur(2px); }
-        .status-active { background: #d8f0e2 !important; color: #367a51 !important; }
-        .status-completed { background: #e2f4ea !important; color: #2c6e47 !important; }
-        .status-pending { background: #ffe1dd !important; color: #d1452b !important; font-weight: 700 !important; }
-        .class-card.break-time .status-tag { background: #fff0cf !important; color: #c67c1e !important; }
-        .end-msg { text-align: center; margin-top: 18px; padding: 16px; background: rgba(235, 245, 255, 0.6); border-radius: 60px; color: #3f6988; }
+        .class-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 252, 0.96);
+            box-shadow: 0 24px 36px -14px rgba(0, 0, 0, 0.15);
+        }
+        .class-card.active {
+            background: linear-gradient(115deg, #2b6ef0, #3f8eff);
+            color: white;
+            transform: scale(1.01);
+        }
+        .class-card.break-time {
+            background: linear-gradient(115deg, rgba(255, 242, 201, 0.96), rgba(255, 247, 220, 0.92));
+            border-left: 6px solid #f5a623;
+            color: #aa6f20;
+        }
+        .time-slot {
+            font-weight: 800;
+            font-size: 18px;
+            min-width: 85px;
+            font-family: 'SF Mono', monospace;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 8px 0;
+            border-radius: 40px;
+            text-align: center;
+        }
+        .class-details {
+            flex: 1;
+            margin-left: 22px;
+        }
+        .class-name {
+            font-size: 19px;
+            font-weight: 680;
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
+        }
+        .class-room {
+            font-size: 13px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .class-room::before {
+            content: "📍";
+            font-size: 12px;
+            opacity: 0.85;
+        }
+        .status-tag {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 22px;
+            border-radius: 80px;
+            white-space: nowrap;
+            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.03);
+        }
+        .status-active {
+            background: #d8f0e2 !important;
+            color: #2a6e46 !important;
+            font-weight: 700;
+        }
+        .status-completed {
+            background: #e2f4ea !important;
+            color: #2c6e47 !important;
+        }
+        .status-pending {
+            background: #ffe1dd !important;
+            color: #d1452b !important;
+            font-weight: 700;
+        }
+        .class-card.break-time .status-tag {
+            background: #fff0cf !important;
+            color: #c67c1e !important;
+        }
+        .end-msg {
+            text-align: center;
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(235, 245, 255, 0.6);
+            border-radius: 60px;
+            color: #3f6988;
+            font-weight: 500;
+        }
 
+        /* 下周课表模态框 精致设计 */
         .modal-mask {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(20, 35, 55, 0.55);
-            backdrop-filter: blur(12px);
+            background: rgba(20, 35, 55, 0.6);
+            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             visibility: hidden;
             opacity: 0;
-            transition: 0.2s ease;
+            transition: 0.25s ease;
         }
-        .modal-mask.active { visibility: visible; opacity: 1; }
+        .modal-mask.active {
+            visibility: visible;
+            opacity: 1;
+        }
         .modal-container {
-            background: #fffffffa;
-            border-radius: 56px;
+            background: rgba(255, 255, 252, 0.98);
+            border-radius: 68px;
             width: 94%;
             max-width: 1100px;
             max-height: 85vh;
             overflow-y: auto;
-            padding: 28px;
-            box-shadow: 0 35px 55px rgba(0, 0, 0, 0.25);
+            padding: 32px 30px;
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255,245,210,0.6);
         }
-        .week-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 18px; border-bottom: 1px solid #e2edf5; padding-bottom: 14px; }
-        .week-tab { background: #ecf3f9; border-radius: 60px; padding: 8px 22px; cursor: pointer; font-weight: 600; }
-        .week-tab.active-tab { background: #2c5a7a; color: white; }
-        .course-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; font-size: 13px; }
-        .course-table th, .course-table td { background: #fefcf7; padding: 12px 10px; border-radius: 24px; box-shadow: inset 0 0 0 1px rgba(210,225,240,0.6); }
-        .course-table input { width: 100%; padding: 10px 12px; border-radius: 32px; border: 1px solid #cfe0ed; background: #ffffff; }
-        .del-row { background: #c27d62 !important; padding: 6px 14px !important; }
-        .action-buttons { display: flex; justify-content: flex-end; gap: 16px; margin-top: 28px; }
-        .btn-save-all { background: #2e7d64; color: white; border: none; padding: 10px 28px; border-radius: 44px; font-weight: 700; cursor: pointer; }
-        #addCourseBtn { background: #3b7ca5; color: white; border: none; padding: 9px 24px; border-radius: 40px; margin-top: 18px; cursor: pointer; }
-        .next-week-grid { display: flex; flex-direction: column; gap: 20px; }
-        .next-week-day { background: #fefef9; border-radius: 32px; padding: 14px 18px; }
-        .day-header { font-size: 18px; font-weight: 700; color: #1f4e6e; border-left: 5px solid #3f8eff; padding-left: 14px; margin-bottom: 12px; }
-        .day-course-list { display: flex; flex-direction: column; gap: 12px; }
-        .next-course-item { display: flex; align-items: center; gap: 16px; padding: 10px 12px; background: #fafafc; border-radius: 28px; }
-        .next-course-time { min-width: 70px; font-weight: 700; font-family: monospace; }
-        .next-course-info { flex: 1; }
-        .week-summary { background: #eef3fc; padding: 12px 18px; border-radius: 48px; margin: 12px 0 20px; }
-        #importAIInput { display: none; }
+        .modal-container h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1f4e6e;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-container h3::before {
+            content: "📆";
+            font-size: 28px;
+        }
+        .week-summary {
+            background: #eef3fc;
+            padding: 14px 24px;
+            border-radius: 56px;
+            margin: 12px 0 24px;
+            font-weight: 600;
+            color: #1f5e7e;
+            font-size: 16px;
+        }
+        .next-week-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .next-week-day {
+            background: #fefef9;
+            border-radius: 44px;
+            padding: 18px 24px;
+            transition: 0.1s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            border: 0.5px solid rgba(210,225,240,0.7);
+        }
+        .day-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f4e6e;
+            border-left: 5px solid #3f8eff;
+            padding-left: 18px;
+            margin-bottom: 16px;
+        }
+        .day-course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .next-course-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 16px;
+            background: #fafafc;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+        .next-course-time {
+            min-width: 80px;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 15px;
+            color: #2c6280;
+        }
+        .next-course-info {
+            flex: 1;
+        }
+        .next-course-name {
+            font-weight: 650;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+        .next-course-room {
+            font-size: 13px;
+            color: #607b96;
+        }
+        .no-course {
+            color: #9aaebf;
+            font-style: italic;
+            padding: 12px 0 6px 12px;
+        }
+        .btn-close-modal {
+            background: #2c5f82;
+            border: none;
+            color: white;
+            border-radius: 60px;
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 28px;
+            display: inline-block;
+            transition: 0.2s;
+        }
+        .btn-close-modal:hover {
+            background: #1b4868;
+            transform: scale(0.97);
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+            margin-top: 28px;
+        }
 
-        @media (max-width: 760px) {
-            .action-bar { border-radius: 48px; padding: 12px 16px; gap: 10px; }
-            .class-card { flex-wrap: wrap; padding: 16px; }
+        /* 移动端优化 */
+        @media (max-width: 680px) {
+            .class-card {
+                flex-wrap: wrap;
+                padding: 20px;
+                gap: 12px;
+            }
+            .time-slot {
+                min-width: 70px;
+                font-size: 16px;
+            }
+            .class-details {
+                margin-left: 0;
+                width: 100%;
+            }
+            .status-tag {
+                font-size: 11px;
+                padding: 5px 16px;
+            }
+            .next-week-btn {
+                padding: 10px 28px;
+                font-size: 14px;
+            }
+            .modal-container {
+                padding: 24px 18px;
+            }
         }
     </style>
 </head>
@@ -326,33 +416,32 @@
         <div class="live-clock" id="liveClock">加载中...</div>
     </div>
 
+    <!-- 极简操作栏：仅保留查看下周课表 -->
     <div class="action-bar">
-        <div class="date-set-group"><span class="menu-label">📅 开学</span><input type="date" id="termStartInput" class="menu-input"><button id="updateTermBtn" class="menu-btn">更新</button></div>
-        <div class="date-set-group"><span class="menu-label">🎓 学期结束</span><input type="date" id="termEndInput" class="menu-input"><button id="updateTermEndBtn" class="menu-btn">设置</button></div>
-        <div class="divider"></div>
-        <button id="editScheduleBtn" class="menu-btn">✏️ 编辑课表</button>
-        <button id="nextWeekBtn" class="menu-btn">📅 下周课表</button>
-        <button id="exportExcelBtn" class="menu-btn">📎 导出Excel</button>
-        <button id="importAIBtn" class="menu-btn">🤖 AI扫描导入</button>
-        <button id="resetDefaultBtn" class="menu-btn reset-btn">⟳ 重置默认</button>
+        <button id="nextWeekBtn" class="next-week-btn">查看下周课表</button>
     </div>
 
     <div class="schedule-container" id="schedule"></div>
 </div>
 
-<input type="file" id="importAIInput" accept="image/*,application/pdf,.jpg,.jpeg,.png,.webp,.bmp">
-
-<!-- AI 加载遮罩 -->
-<div id="aiOverlay" class="ai-overlay"><div class="ai-card"><div class="ai-spinner"></div><div class="ai-progress-text" id="aiProgressText">🤖 AI 正在识别课表内容...</div><div style="margin-top:12px; font-size:13px; color:#7b8c9e;">支持图片、PDF、课表截图<br>智能解析课程时间/名称/教室</div></div></div>
-
-<!-- 模态框 -->
-<div id="scheduleModal" class="modal-mask"><div class="modal-container"><h3>✏️ 单双周课表编辑器</h3><div class="week-tabs" id="weekTabs"></div><div id="modalCourseEditor"></div><div class="action-buttons"><button class="btn-save-all" id="saveScheduleBtn">💾 保存全部修改</button><button class="menu-btn" id="closeModalBtn">取消</button></div></div></div>
-<div id="nextWeekModal" class="modal-mask"><div class="modal-container"><h3>📆 下周课程预览</h3><div class="week-summary" id="nextWeekSummary"></div><div id="nextWeekContent" class="next-week-grid"></div><div class="action-buttons"><button class="btn-close-modal" id="closeNextWeekBtn">关闭</button></div></div></div>
+<!-- 下周课表模态框 -->
+<div id="nextWeekModal" class="modal-mask">
+    <div class="modal-container">
+        <h3>📆 下周课程全览</h3>
+        <div class="week-summary" id="nextWeekSummary"></div>
+        <div id="nextWeekContent" class="next-week-grid"></div>
+        <div class="action-buttons">
+            <button class="btn-close-modal" id="closeNextWeekBtn">关闭</button>
+        </div>
+    </div>
+</div>
 
 <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    // ======================= 固定学期配置 (不可修改，仅用于周数计算) =======================
+    const TERM_START = new Date(2026, 2, 9);  // 2026-03-09 (JS月份0索引)
+    const TERM_END   = new Date(2026, 6, 13); // 2026-07-13
     
-    // ==================== 默认课表（周四已按要求修改） ====================
+    // ------------------------- 默认课表 (周四单双周已完全按需求配置) -------------------------
     const DEFAULT_SCHEDULE = [
         [], // 周日
         [   // 周一
@@ -370,7 +459,7 @@
             { start: "10:10", dur: 90, odd: { name: "Java面向对象程序设计", room: "格物楼机房201" }, even: { name: "Java面向对象程序设计", room: "格物楼机房201" } },
             { start: "18:20", dur: 90, odd: { name: "晚自习/社团", room: "博学楼C201" }, even: { name: "晚自习/社团", room: "博学楼C201" } }
         ],
-        [   // 周四 —— 单周第一节无课，第三节单周习近平思想
+        [   // 周四 —— 严格按照需求:单周第一节无课,第三节单周习近平思想
             { start: "08:15", dur: 90, odd: { name: "", room: "" }, even: { name: "国家安全教育", room: "博学楼A201" } },
             { start: "10:10", dur: 90, odd: { name: "心理健康", room: "博学楼C205" }, even: { name: "心理健康", room: "博学楼C205" } },
             { start: "14:00", dur: 90, odd: { name: "习近平新时代中国特色社会主义思想概论", room: "厚德楼A503" }, even: { name: "Web前端开发基础", room: "格物楼机房107" } },
@@ -386,153 +475,64 @@
         []  // 周六
     ];
 
-    let currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
-    let termStartDate = new Date("2026-03-09");
-    let termEndDate = new Date("2026-07-13");
+    // 确保每节课时长为90分钟
+    function enforceAllCourses90Minutes(schedule) {
+        for (let day of schedule) if (day) for (let c of day) if (c && c.dur !== 90) c.dur = 90;
+        return schedule;
+    }
+    let currentSchedule = enforceAllCourses90Minutes(JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)));
 
-    // 端午节日期范围：2026年6月19日（周五）至 2026年6月21日（周日）
+    // ======================= 辅助函数 =======================
+    function getCurrentWeek() {
+        let diffDays = Math.floor((new Date() - TERM_START) / 86400000);
+        let week = Math.floor(diffDays / 7) + 1;
+        return week < 1 ? 1 : week;
+    }
+
+    function isHoliday() {
+        let now = new Date(); now.setHours(0,0,0,0);
+        let end = new Date(TERM_END); end.setHours(0,0,0,0);
+        return now >= end;
+    }
+
+    // 端午节专属判定：2026年6月19日~6月21日
     function isDragonBoatFestival() {
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const date = now.getDate();
-        // 2026年端午节：6月19日-6月21日（通常三天假期）
-        if (year === 2026 && month === 5) { // 六月是5（0-index）
+        if (year === 2026 && month === 5) { // 六月是5
             return (date >= 19 && date <= 21);
         }
-        // 可扩展其他年份，但默认仅2026
         return false;
     }
 
-    function enforceAllCourses90Minutes(schedule) {
-        for (let day of schedule) if(day) for(let c of day) if(c && c.dur !== 90) c.dur = 90;
-        return schedule;
-    }
-    function getCurrentWeek() { let diffDays = Math.floor((new Date() - termStartDate) / 86400000); let week = Math.floor(diffDays / 7) + 1; return week < 1 ? 1 : week; }
-    function isHoliday() { 
-        let now = new Date(); now.setHours(0,0,0,0);
-        let end = new Date(termEndDate); end.setHours(0,0,0,0);
-        return now >= end;
-    }
-    function getTimestamp(t) { let [h,m]=t.split(':').map(Number); let d=new Date(); d.setHours(h,m,0,0); return d.getTime(); }
-    function persistData() { localStorage.setItem('smart_schedule_data', JSON.stringify(currentSchedule)); localStorage.setItem('smart_term_start', termStartDate.toISOString()); localStorage.setItem('smart_term_end', termEndDate.toISOString()); }
-    function loadPersistedData() {
-        let saved = localStorage.getItem('smart_schedule_data');
-        if(saved) try { currentSchedule = enforceAllCourses90Minutes(JSON.parse(saved)); } catch(e) {}
-        let st = localStorage.getItem('smart_term_start'); if(st) { let p = new Date(st); if(!isNaN(p)) termStartDate = p; }
-        let et = localStorage.getItem('smart_term_end'); if(et) { let p = new Date(et); if(!isNaN(p)) termEndDate = p; }
-        document.getElementById('termStartInput').value = termStartDate.toISOString().slice(0,10);
-        document.getElementById('termEndInput').value = termEndDate.toISOString().slice(0,10);
-        currentSchedule = enforceAllCourses90Minutes(currentSchedule);
-    }
-    function resetToDefault() { currentSchedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)); enforceAllCourses90Minutes(currentSchedule); persistData(); refreshAll(); alert("课表已重置为最新配置（含周四单双周调整）"); }
-
-    // ========== AI 智能解析 ==========
-    async function extractTextFromFile(file) {
-        const type = file.type;
-        if (type === 'application/pdf') {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                const strings = content.items.map(item => item.str);
-                fullText += strings.join(' ') + '\n';
-            }
-            return fullText;
-        } else if (type.startsWith('image/')) {
-            const imgUrl = URL.createObjectURL(file);
-            const { data: { text } } = await Tesseract.recognize(imgUrl, 'chi_sim+eng', { logger: m => { if(m.status === 'recognizing text') document.getElementById('aiProgressText').innerText = `📸 OCR识别中: ${Math.round(m.progress*100)}%`; } });
-            URL.revokeObjectURL(imgUrl);
-            return text;
-        }
-        return '';
+    function getTimestamp(timeStr) {
+        let [h, m] = timeStr.split(':').map(Number);
+        let d = new Date();
+        d.setHours(h, m, 0, 0);
+        return d.getTime();
     }
 
-    function parseCoursesFromText(text) {
-        const lines = text.split(/\r?\n/);
-        const timeRegex = /\b(\d{1,2}):(\d{2})\b/;
-        const weekMap = { '周一':1, '周二':2, '周三':3, '周四':4, '周五':5, '周六':6, '周日':0, '星期一':1, '星期二':2, '星期三':3, '星期四':4, '星期五':5, '星期六':6, '星期日':0 };
-        let newSchedule = [[],[],[],[],[],[],[]];
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-            const timeMatch = line.match(timeRegex);
-            if (!timeMatch) continue;
-            const timeStr = timeMatch[1].padStart(2,'0') + ':' + timeMatch[2];
-            let courseName = '', room = '';
-            const afterTime = line.substring(line.indexOf(timeStr) + timeStr.length);
-            const roomKeywords = /(博学楼|厚德楼|格物楼|机房|篮球场|教学楼|实验楼|C\d{3}|A\d{3}|B\d{3}|教室\w*)/;
-            const roomMatch = afterTime.match(roomKeywords);
-            if (roomMatch) {
-                room = roomMatch[0];
-                let namePart = afterTime.substring(0, afterTime.indexOf(room)).trim();
-                if (namePart.length > 0) courseName = namePart;
-                else courseName = "未知课程";
-            } else {
-                const chnMatch = afterTime.match(/[\u4e00-\u9fa5]{2,}/);
-                courseName = chnMatch ? chnMatch[0] : "新课程";
-                room = "未标注";
-            }
-            let dayIdx = -1;
-            for (let [kw, idx] of Object.entries(weekMap)) {
-                if (line.includes(kw)) { dayIdx = idx; break; }
-            }
-            if (dayIdx === -1) continue;
-            const existing = newSchedule[dayIdx].findIndex(c => c.start === timeStr);
-            const courseItem = { start: timeStr, dur: 90, odd: { name: courseName, room: room }, even: { name: courseName, room: room } };
-            if (existing !== -1) newSchedule[dayIdx][existing] = courseItem;
-            else newSchedule[dayIdx].push(courseItem);
-        }
-        for (let i=0;i<7;i++) newSchedule[i].sort((a,b)=>a.start.localeCompare(b.start));
-        return newSchedule;
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m];
+        });
     }
 
-    async function aiImportFile(file) {
-        const overlay = document.getElementById('aiOverlay');
-        overlay.classList.add('active');
-        document.getElementById('aiProgressText').innerText = '📄 正在解析文件内容...';
-        try {
-            let extractedText = await extractTextFromFile(file);
-            if (!extractedText || extractedText.trim().length < 10) throw new Error('未能从文件中读取到有效文字');
-            document.getElementById('aiProgressText').innerText = '🧠 AI 分析课程结构...';
-            const parsed = parseCoursesFromText(extractedText);
-            let hasAny = false;
-            for(let arr of parsed) if(arr.length>0) { hasAny=true; break; }
-            if(!hasAny) throw new Error('未能识别出课程信息');
-            currentSchedule = enforceAllCourses90Minutes(parsed);
-            persistData();
-            refreshAll();
-            alert(`✅ AI导入成功！共识别到 ${parsed.reduce((s,day)=>s+day.length,0)} 节课。\n请检查并可通过「编辑课表」微调。`);
-        } catch(err) {
-            console.error(err);
-            alert(`❌ AI导入失败：${err.message}\n建议使用「编辑课表」手动录入或导出Excel模板导入。`);
-        } finally {
-            overlay.classList.remove('active');
-        }
-    }
-
-    function exportToExcel() {
-        const weekdays = ["周日","周一","周二","周三","周四","周五","周六"];
-        const rows = [["星期","时间","单周课程","单周教室","双周课程","双周教室"]];
-        for (let i=0;i<currentSchedule.length;i++) {
-            for(let c of currentSchedule[i]) rows.push([weekdays[i], c.start, c.odd.name, c.odd.room, c.even.name, c.even.room]);
-        }
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "课程表");
-        XLSX.writeFile(wb, `课程表_${new Date().toISOString().slice(0,19)}.xlsx`);
-        alert("✅ 已导出Excel");
-    }
-
+    // 更新时钟与周数显示
     function updateLiveClock() {
-        let now = new Date(), weekNum = getCurrentWeek(), isOdd = weekNum%2===1;
+        let now = new Date();
+        let weekNum = getCurrentWeek();
+        let isOdd = weekNum % 2 === 1;
         let clockDiv = document.getElementById('liveClock');
-        if(clockDiv) clockDiv.innerHTML = `${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN')} · 第${weekNum}周 ${isOdd?'✨单周':'🌟双周'}`;
+        if (clockDiv) {
+            clockDiv.innerHTML = `${now.toLocaleDateString('zh-CN')} ${now.toLocaleTimeString('zh-CN')} · 第${weekNum}周 ${isOdd ? '✨单周' : '🌟双周'}`;
+        }
     }
-    
-    // 渲染端午节专属界面
+
+    // ----------------------- 渲染端午节UI -----------------------
     function renderDragonBoatUI() {
         const container = document.getElementById('schedule');
         const dragonCard = document.createElement('div');
@@ -551,141 +551,182 @@
         container.innerHTML = '';
         container.appendChild(dragonCard);
     }
-    
+
+    // ----------------------- 学期结束普通假期UI -----------------------
+    function renderCommonHolidayUI() {
+        const container = document.getElementById('schedule');
+        const now = new Date();
+        const daysDiff = Math.ceil((now - TERM_END) / (1000 * 60 * 60 * 24));
+        const holidayDays = daysDiff > 0 ? daysDiff : 1;
+        const holidayCard = document.createElement('div');
+        holidayCard.className = 'holiday-card';
+        holidayCard.innerHTML = `
+            <div class="holiday-icon">🏖️🌊</div>
+            <div class="holiday-title">假期模式 · 悠然时光</div>
+            <div class="holiday-sub">课表正在休息中，好好放松吧~</div>
+            <div class="holiday-message">📚 暂时没有课程安排<br>享受阳光、阅读与热爱的一切 🌟<br>新学期能量蓄力中 ✨</div>
+            <div class="holiday-countdown">🎉 假期已开启 ${holidayDays} 天  🎉</div>
+            <div style="margin-top:18px; font-size:13px; opacity:0.8;">学期结束日期：${TERM_END.toLocaleDateString()}</div>
+        `;
+        container.innerHTML = '';
+        container.appendChild(holidayCard);
+    }
+
+    // 正常课表渲染 (含动态倒计时)
     function renderNormalSchedule() {
-        let now = new Date(), day = now.getDay(), nowMs = now.getTime(), isOdd = getCurrentWeek()%2===1;
+        let now = new Date();
+        let day = now.getDay();
+        let nowMs = now.getTime();
+        let weekNum = getCurrentWeek();
+        let isOdd = weekNum % 2 === 1;
         let container = document.getElementById('schedule');
         container.innerHTML = '';
-        let items = [];
-        for(let cls of (currentSchedule[day] || [])) {
+        
+        let coursesToday = currentSchedule[day] || [];
+        let validCourses = [];
+        for (let cls of coursesToday) {
             let courseData = isOdd ? cls.odd : cls.even;
-            if(courseData && courseData.name && courseData.name.trim() !== "") {
-                items.push({ startStr: cls.start, teachingMin: cls.dur, course: courseData });
+            if (courseData && courseData.name && courseData.name.trim() !== "") {
+                validCourses.push({
+                    startStr: cls.start,
+                    duration: cls.dur,
+                    course: courseData
+                });
             }
         }
-        if(items.length===0) { container.innerHTML = '<div class="class-card">今天没有课程安排</div>'; return; }
-        for(let item of items) {
+        if (validCourses.length === 0) {
+            container.innerHTML = '<div class="class-card" style="justify-content:center;">✨ 今天没有课程安排，好好放松吧 ✨</div>';
+            return;
+        }
+
+        for (let item of validCourses) {
             let startTs = getTimestamp(item.startStr);
-            let endTs = startTs + item.teachingMin*60*1000;
-            let state, statusClass='';
-            if(nowMs >= startTs && nowMs < endTs) {
-                let remainSec = Math.floor((endTs - nowMs)/1000);
-                let mins = Math.floor(remainSec/60), secs = remainSec%60;
+            let endTs = startTs + item.duration * 60 * 1000;
+            let state = '', statusClass = '';
+            if (nowMs >= startTs && nowMs < endTs) {
+                let remainSec = Math.floor((endTs - nowMs) / 1000);
+                let mins = Math.floor(remainSec / 60);
+                let secs = remainSec % 60;
                 state = `⏳ 下课倒计时 ${mins}分${secs}秒`;
                 statusClass = 'status-active';
-            } else if(nowMs < startTs) {
+            } else if (nowMs < startTs) {
                 let diff = startTs - nowMs;
-                let hours = Math.floor(diff/3600000), mins = Math.floor((diff%3600000)/60000);
-                state = hours>0?`还有 ${hours}时${mins}分`:`还有 ${mins}分钟`;
+                let hours = Math.floor(diff / 3600000);
+                let mins = Math.floor((diff % 3600000) / 60000);
+                state = hours > 0 ? `还有 ${hours}时${mins}分` : `还有 ${mins}分钟`;
                 statusClass = 'status-pending';
             } else {
                 state = "✅ 完美结束";
                 statusClass = 'status-completed';
             }
-            let card = document.createElement('div'); card.className = 'class-card';
-            card.innerHTML = `<div class="time-slot">${item.startStr}</div><div class="class-details"><div class="class-name">${escapeHtml(item.course.name)}</div><div class="class-room">${escapeHtml(item.course.room||'未标注')}</div></div><div class="status-tag ${statusClass}">${state}</div>`;
+            let card = document.createElement('div');
+            card.className = 'class-card';
+            card.innerHTML = `
+                <div class="time-slot">${item.startStr}</div>
+                <div class="class-details">
+                    <div class="class-name">${escapeHtml(item.course.name)}</div>
+                    <div class="class-room">${escapeHtml(item.course.room || '未标注')}</div>
+                </div>
+                <div class="status-tag ${statusClass}">${state}</div>
+            `;
             container.appendChild(card);
         }
     }
-    
-    function renderSchedule() { 
-        // 优先级：端午节 > 学期结束假期 > 正常课表
+
+    // 主渲染：优先级 端午节 > 学期结束 > 正常课表
+    function renderSchedule() {
         if (isDragonBoatFestival()) {
             renderDragonBoatUI();
         } else if (isHoliday()) {
-            // 普通假期卡片（学期结束后显示）
-            const container = document.getElementById('schedule');
-            const now = new Date();
-            const daysDiff = Math.ceil((now - termEndDate) / (1000 * 60 * 60 * 24));
-            const holidayDays = daysDiff > 0 ? daysDiff : 1;
-            const holidayCard = document.createElement('div');
-            holidayCard.className = 'holiday-card';
-            holidayCard.innerHTML = `
-                <div class="holiday-icon">🏖️🌊</div>
-                <div class="holiday-title">假期模式 · 悠然时光</div>
-                <div class="holiday-sub">课表正在休息中，好好放松吧~</div>
-                <div class="holiday-message">📚 暂时没有课程安排<br>享受阳光、阅读与热爱的一切 🌟<br>新学期能量蓄力中 ✨</div>
-                <div class="holiday-countdown">🎉 假期已开启 ${holidayDays} 天  🎉</div>
-                <div style="margin-top:18px; font-size:12px;">学期结束日期：${termEndDate.toLocaleDateString()}</div>
-            `;
-            container.innerHTML = '';
-            container.appendChild(holidayCard);
+            renderCommonHolidayUI();
         } else {
             renderNormalSchedule();
         }
     }
-    
-    function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g,function(m){return { '&':'&amp;','<':'&lt;','>':'&gt;' }[m];}); }
-    function refreshAll(){ updateLiveClock(); renderSchedule(); }
 
-    // 编辑模态框
-    let currentEditWeekday=1, weekdays=["周日","周一","周二","周三","周四","周五","周六"];
-    function openEditorModal() { document.getElementById('scheduleModal').classList.add('active'); renderWeekTabs(); renderCourseTable(currentEditWeekday); }
-    function renderWeekTabs() { let cont=document.getElementById('weekTabs'); cont.innerHTML=''; for(let i=0;i<7;i++){ let btn=document.createElement('div'); btn.className='week-tab'+(currentEditWeekday===i?' active-tab':''); btn.innerText=weekdays[i]; btn.onclick=()=>{ currentEditWeekday=i; renderWeekTabs(); renderCourseTable(i); }; cont.appendChild(btn); } }
-    function renderCourseTable(dayIdx) {
-        let container = document.getElementById('modalCourseEditor');
-        let courses = currentSchedule[dayIdx] || [];
-        let html = `<table class="course-table"><thead><tr><th>时间</th><th>单周课程</th><th>单周教室</th><th>双周课程</th><th>双周教室</th><th>操作</th></tr></thead><tbody>`;
-        for(let i=0;i<courses.length;i++){ let c=courses[i];
-            html+=`<tr><td><input type="text" value="${c.start}" class="edit-start" data-idx="${i}"></td><td><input value="${escapeHtml(c.odd.name)}" class="edit-odd-name" data-idx="${i}"></td><td><input value="${escapeHtml(c.odd.room)}" class="edit-odd-room" data-idx="${i}"></td><td><input value="${escapeHtml(c.even.name)}" class="edit-even-name" data-idx="${i}"></td><td><input value="${escapeHtml(c.even.room)}" class="edit-even-room" data-idx="${i}"></td><td><button class="menu-btn del-row" data-idx="${i}">删除</button></td></tr>`;
-        }
-        html+=`</tbody></table><div><button id="addCourseBtn">+ 新增课程</button></div>`;
-        container.innerHTML=html;
-        document.querySelectorAll('.del-row').forEach(btn=>btn.addEventListener('click',(e)=>{ let idx=parseInt(btn.dataset.idx); currentSchedule[dayIdx].splice(idx,1); renderCourseTable(dayIdx); }));
-        document.querySelectorAll('.edit-start').forEach(inp=>inp.addEventListener('change',(e)=>{let idx=parseInt(inp.dataset.idx); currentSchedule[dayIdx][idx].start=inp.value;}));
-        document.querySelectorAll('.edit-odd-name').forEach(inp=>inp.addEventListener('change',(e)=>{let idx=parseInt(inp.dataset.idx); currentSchedule[dayIdx][idx].odd.name=inp.value;}));
-        document.querySelectorAll('.edit-odd-room').forEach(inp=>inp.addEventListener('change',(e)=>{let idx=parseInt(inp.dataset.idx); currentSchedule[dayIdx][idx].odd.room=inp.value;}));
-        document.querySelectorAll('.edit-even-name').forEach(inp=>inp.addEventListener('change',(e)=>{let idx=parseInt(inp.dataset.idx); currentSchedule[dayIdx][idx].even.name=inp.value;}));
-        document.querySelectorAll('.edit-even-room').forEach(inp=>inp.addEventListener('change',(e)=>{let idx=parseInt(inp.dataset.idx); currentSchedule[dayIdx][idx].even.room=inp.value;}));
-        document.getElementById('addCourseBtn')?.addEventListener('click',()=>{ currentSchedule[dayIdx].push({ start:"08:15", dur:90, odd:{name:"新课程",room:"教室"}, even:{name:"新课程",room:"教室"} }); renderCourseTable(dayIdx); });
+    // 刷新所有动态内容
+    function refreshAll() {
+        updateLiveClock();
+        renderSchedule();
     }
-    function closeModal(){ document.getElementById('scheduleModal').classList.remove('active'); }
-    function saveScheduleFromModal(){ enforceAllCourses90Minutes(currentSchedule); persistData(); closeModal(); refreshAll(); alert("课表已保存"); }
-    function showNextWeekSchedule(){ 
-        let weekdaysCn = ["周日","周一","周二","周三","周四","周五","周六"];
+
+    // ----------------------- 下周课表预览 (独立保留) -----------------------
+    function showNextWeekSchedule() {
+        const weekdaysCn = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
         let currentWeek = getCurrentWeek();
         let nextWeekNum = currentWeek + 1;
-        let isOdd = nextWeekNum % 2 === 1;
-        document.getElementById('nextWeekSummary').innerHTML = `📌 下周为第 ${nextWeekNum} 周 · ${isOdd ? '单周' : '双周'}课表`;
+        let isOddNext = nextWeekNum % 2 === 1;
+        document.getElementById('nextWeekSummary').innerHTML = `📌 下周为第 ${nextWeekNum} 周 · ${isOddNext ? '单周' : '双周'}课表 (仅展示有课程安排)`;
         let container = document.getElementById('nextWeekContent');
         container.innerHTML = '';
-        for(let d=0; d<7; d++) {
+        for (let d = 0; d < 7; d++) {
             let courses = currentSchedule[d] || [];
-            let dayDiv = document.createElement('div'); dayDiv.className = 'next-week-day';
+            let dayDiv = document.createElement('div');
+            dayDiv.className = 'next-week-day';
             dayDiv.innerHTML = `<div class="day-header">${weekdaysCn[d]}</div><div class="day-course-list"></div>`;
             let listDiv = dayDiv.querySelector('.day-course-list');
             let hasCourse = false;
-            for(let c of courses) {
-                let courseData = isOdd ? c.odd : c.even;
-                if(courseData && courseData.name && courseData.name.trim() !== "") {
+            for (let c of courses) {
+                let courseData = isOddNext ? c.odd : c.even;
+                if (courseData && courseData.name && courseData.name.trim() !== "") {
                     hasCourse = true;
-                    let itemDiv = document.createElement('div'); itemDiv.className = 'next-course-item';
-                    itemDiv.innerHTML = `<div class="next-course-time">${c.start}</div><div class="next-course-info"><div class="next-course-name">${escapeHtml(courseData.name)}</div><div class="next-course-room">📍 ${escapeHtml(courseData.room||'未标注')}</div></div>`;
+                    let itemDiv = document.createElement('div');
+                    itemDiv.className = 'next-course-item';
+                    itemDiv.innerHTML = `
+                        <div class="next-course-time">${c.start}</div>
+                        <div class="next-course-info">
+                            <div class="next-course-name">${escapeHtml(courseData.name)}</div>
+                            <div class="next-course-room">📍 ${escapeHtml(courseData.room || '未标注')}</div>
+                        </div>
+                    `;
                     listDiv.appendChild(itemDiv);
                 }
             }
-            if(!hasCourse) listDiv.innerHTML = '<div class="no-course">✨ 今日无课程安排</div>';
+            if (!hasCourse) {
+                listDiv.innerHTML = '<div class="no-course">✨ 今日无课程安排</div>';
+            }
             container.appendChild(dayDiv);
         }
         document.getElementById('nextWeekModal').classList.add('active');
     }
-    function closeNextWeekModal(){ document.getElementById('nextWeekModal').classList.remove('active'); }
-    document.getElementById('closeNextWeekBtn')?.addEventListener('click',closeNextWeekModal);
 
+    function closeNextWeekModal() {
+        document.getElementById('nextWeekModal').classList.remove('active');
+    }
+
+    // ======================= 页面启动 & 事件绑定 =======================
     window.onload = () => {
-        loadPersistedData();
-        document.getElementById('updateTermBtn').onclick = ()=>{ let nd=new Date(document.getElementById('termStartInput').value); if(!isNaN(nd)){ termStartDate=nd; persistData(); refreshAll(); alert("开学日已更新"); } };
-        document.getElementById('updateTermEndBtn').onclick = ()=>{ let nd=new Date(document.getElementById('termEndInput').value); if(!isNaN(nd)){ termEndDate=nd; persistData(); refreshAll(); alert("学期结束已更新"); } };
-        document.getElementById('editScheduleBtn').onclick = openEditorModal;
-        document.getElementById('nextWeekBtn').onclick = showNextWeekSchedule;
-        document.getElementById('exportExcelBtn').onclick = exportToExcel;
-        document.getElementById('importAIBtn').onclick = ()=>document.getElementById('importAIInput').click();
-        document.getElementById('importAIInput').onchange = (e)=>{ if(e.target.files[0]) aiImportFile(e.target.files[0]); e.target.value=''; };
-        document.getElementById('resetDefaultBtn').onclick = ()=>{ if(confirm("重置课表？")) resetToDefault(); };
-        document.getElementById('saveScheduleBtn').onclick = saveScheduleFromModal;
-        document.getElementById('closeModalBtn').onclick = closeModal;
+        // 确保课表无残留修改 (不加载任何外部存储，完全纯净)
+        currentSchedule = enforceAllCourses90Minutes(JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)));
+        
+        // 绑定唯一的功能按钮：下周课表
+        const nextWeekBtn = document.getElementById('nextWeekBtn');
+        if (nextWeekBtn) nextWeekBtn.addEventListener('click', showNextWeekSchedule);
+        
+        const closeBtn = document.getElementById('closeNextWeekBtn');
+        if (closeBtn) closeBtn.addEventListener('click', closeNextWeekModal);
+        
+        // 点击模态框背景关闭 (优雅)
+        const modal = document.getElementById('nextWeekModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeNextWeekModal();
+            });
+        }
+        
+        // 初始渲染并每秒刷新动态倒计时与时钟
         refreshAll();
-        setInterval(()=>{ updateLiveClock(); renderSchedule(); }, 1000);
+        setInterval(() => {
+            updateLiveClock();
+            // 只有非假期模式且非端午节时才刷新课程动态状态（保持倒计时精准）
+            if (!isHoliday() && !isDragonBoatFestival()) {
+                renderNormalSchedule();
+            } else if (isDragonBoatFestival()) {
+                renderDragonBoatUI();
+            } else if (isHoliday()) {
+                renderCommonHolidayUI();
+            }
+        }, 1000);
     };
 </script>
 </body>
